@@ -1,4 +1,4 @@
-defmodule Generals.Board.RandomizationTest do
+defmodule Generals.Board.BasicRandomizationTest do
   use ExUnit.Case, async: true
 
   alias Generals.Board
@@ -25,7 +25,12 @@ defmodule Generals.Board.RandomizationTest do
   end
 
   describe "mountains" do
-    test "mountains won't be placed on top of each other"
+    test "mountains won't be placed on top of each other" do
+      board = Board.get_new(rows: 2, columns: 2)
+      random_board = Board.randomize_board(board, %Board.GenerationStats{ player_count: 0, mountain_percent_range: (100..100) })
+      assert List.flatten(random_board.cells) |> Enum.filter(&(&1.type == :mountain))
+        |> length == 4
+    end
 
     test "0 mountain percent range leads to no mountains" do
       board = Board.get_new(rows: 2, columns: 2)
@@ -43,11 +48,14 @@ defmodule Generals.Board.RandomizationTest do
         assert mountain_count <= 10
       end)
     end
-
-    test "maps that can't be generated without mountains blocking the map results in an error"
   end
 
   describe "towns" do
-    test "towns can't be placed on top of each other"
+    test "towns won't be placed on top of each other" do
+      board = Board.get_new(rows: 2, columns: 2)
+      random_board = Board.randomize_board(board, %Board.GenerationStats{ player_count: 0, town_percent_range: (100..100) })
+      assert List.flatten(random_board.cells) |> Enum.filter(&(&1.type == :town))
+        |> length == 4
+    end
   end
 end

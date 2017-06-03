@@ -1,6 +1,7 @@
 defmodule Generals.Board do
-  alias Generals.Board.Cell
-  alias Generals.Board.Dimensions
+  alias Generals.Board
+  alias Board.Cell
+  alias Board.Dimensions
 
   defstruct cells: [], dimensions: %Dimensions{}
 
@@ -9,8 +10,9 @@ defmodule Generals.Board do
     %__MODULE__{ cells: empty_cells, dimensions: %Dimensions{ rows: rows, columns: columns } }
   end
 
-  def randomize_board(board, generation_stats) do
-    Generals.Board.Randomization.randomize_board(board, generation_stats)
+  def randomize_board(board, generation_stats, opts \\ []) do
+    options = Keyword.merge([randomization_strategy: Board.BasicRandomization], opts)
+    options[:randomization_strategy].randomize_board(board, generation_stats)
   end
 
   def at(board, {row, col}) do
