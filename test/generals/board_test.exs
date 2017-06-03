@@ -33,4 +33,56 @@ defmodule Generals.BoardTest do
         |> length == 3
     end
   end
+
+  describe "at/2" do
+    test "the right cell is returned" do
+      board = Board.get_new(rows: 10, columns: 15)
+
+      Enum.each((0..9), fn(r) ->
+        Enum.each((0..14), fn(c) ->
+          cell = Board.at(board, {r, c})
+          assert Map.take(cell, [:row, :column]) == %{row: r, column: c}
+        end)
+      end)
+    end
+  end
+
+  describe "special_type_coordinates/1" do
+    test "a new board has no special type coordinates" do
+      assert Board.get_new(rows: 2, columns: 2) |> Board.special_type_coordinates == []
+    end
+
+    test "placed coordinates appear in the list" do
+      assert Board.get_new(rows: 3, columns: 3)
+        |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, type: :mountain })
+        |> Board.replace_cell({1, 0}, %Board.Cell{ row: 1, column: 0, type: :town })
+        |> Board.replace_cell({1, 1}, %Board.Cell{ row: 1, column: 1, type: :town })
+        |> Board.replace_cell({2, 2}, %Board.Cell{ row: 2, column: 2, type: :general })
+        |> Board.special_type_coordinates == [{0,0}, {1,0}, {1,1}, {2,2}]
+    end
+  end
+
+  describe "replace_cell/3" do
+    test "the board is returned with the cell replaced" do
+      assert Board.get_new(rows: 2, columns: 2)
+        |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, type: :mountain })
+        |> Map.take([:cells]) == %{
+          cells: [
+            [%Board.Cell{row: 0, column: 0, type: :mountain}, %Board.Cell{row: 0, column: 1}],
+            [%Board.Cell{row: 1, column: 0}, %Board.Cell{row: 1, column: 1}],
+          ]
+        }
+    end
+
+    test "all boundaries are tested" do
+      board = Board.get_new(rows: 2, columns: 3)
+      Enum.each((0..1), fn(r) ->
+        Enum.each((0..2), fn(c) ->
+          assert board
+            |> Board.replace_cell({r, c}, %Board.Cell{ row: r, column: c, type: :mountain })
+            |> Board.at({r,c}) == %Board.Cell{ row: r, column: c, type: :mountain }
+        end)
+      end)
+    end
+  end
 end

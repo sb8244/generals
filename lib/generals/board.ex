@@ -19,7 +19,7 @@ defmodule Generals.Board do
     board.cells |> Enum.at(row) |> Enum.at(col)
   end
 
-  def occupied_coordinates(board) do
+  def special_type_coordinates(board) do
     List.flatten(board.cells) |> Enum.filter(&(&1.type != :plains)) |> Enum.map(fn(cell) ->
       {cell.row, cell.column}
     end)

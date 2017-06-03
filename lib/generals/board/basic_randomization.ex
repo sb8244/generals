@@ -13,7 +13,7 @@ defmodule Generals.Board.BasicRandomization do
 
   defp randomize_player_generals(board, %GenerationStats{ player_count: player_count }) when player_count == 0, do: board
   defp randomize_player_generals(board, %GenerationStats{ player_count: player_count }) when player_count > 0 do
-    Enum.reduce(1..player_count, {board, Board.occupied_coordinates(board)}, fn(player_id, {board, placed_coords}) ->
+    Enum.reduce(1..player_count, {board, Board.special_type_coordinates(board)}, fn(player_id, {board, placed_coords}) ->
       coords = Dimensions.random_coordinates(board.dimensions, exclude: placed_coords)
       existing_cell = Board.at(board, coords)
       new_cell = Cell.make(:general, existing_cell, owner: player_id)
@@ -42,7 +42,7 @@ defmodule Generals.Board.BasicRandomization do
 
   defp convert_random_empty_cells_to_type(board, count, _) when count == 0, do: board
   defp convert_random_empty_cells_to_type(board, count, type) when count > 0 do
-    Enum.reduce(1..count, {board, Board.occupied_coordinates(board)}, fn(_, {board, placed_coords}) ->
+    Enum.reduce(1..count, {board, Board.special_type_coordinates(board)}, fn(_, {board, placed_coords}) ->
       coords = Dimensions.random_coordinates(board.dimensions, exclude: placed_coords)
       existing_cell = Board.at(board, coords)
       new_cell = Cell.make(type, existing_cell)

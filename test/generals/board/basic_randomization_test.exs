@@ -64,7 +64,6 @@ defmodule Generals.Board.BasicRandomizationTest do
       board = Board.get_new(rows: 2, columns: 2)
       Enum.each((1..50), fn(_) ->
         random_board = Board.randomize_board(board, %Board.GenerationStats{ player_count: 2, town_percent_range: (25..25), mountain_percent_range: (25..25) })
-        Board.occupied_coordinates(random_board)
         assert List.flatten(random_board.cells) |> Enum.filter(&(&1.type == :general)) |> length == 2
         assert List.flatten(random_board.cells) |> Enum.filter(&(&1.type == :town)) |> length == 1
         assert List.flatten(random_board.cells) |> Enum.filter(&(&1.type == :mountain)) |> length == 1
