@@ -19,6 +19,12 @@ defmodule Generals.Board do
     board.cells |> Enum.at(row) |> Enum.at(col)
   end
 
+  def occupied_coordinates(board) do
+    List.flatten(board.cells) |> Enum.filter(&(&1.type != :plains)) |> Enum.map(fn(cell) ->
+      {cell.row, cell.column}
+    end)
+  end
+
   def replace_cell(board, {row, col}, cell) do
     new_col = List.replace_at(Enum.at(board.cells, row), col, cell)
     new_cells = List.replace_at(board.cells, row, new_col)
@@ -26,9 +32,9 @@ defmodule Generals.Board do
   end
 
   defp matrix_of_cells(rows: rows, columns: columns) do
-    Enum.map((1..rows), fn(_) ->
-      Enum.map((1..columns), fn(_) ->
-        %Cell{}
+    Enum.map((0..rows-1), fn(r) ->
+      Enum.map((0..columns-1), fn(c) ->
+        %Cell{ row: r, column: c }
       end)
     end)
   end

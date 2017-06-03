@@ -6,19 +6,20 @@ defmodule Generals.Board.BasicRandomization do
 
   def randomize_board(board, generation_stats) do
     board
-      |> randomize_player_generals(generation_stats)
       |> randomize_mountains(generation_stats)
       |> randomize_towns(generation_stats)
+      |> randomize_player_generals(generation_stats)
   end
 
-  defp randomize_player_generals(board, %GenerationStats{ player_count: player_count }) do
-    Enum.reduce(1..player_count, {board, []}, fn(player_id, {board, placed_general_coords}) ->
-      coords = Dimensions.random_coordinates(board.dimensions, exclude: placed_general_coords)
+  defp randomize_player_generals(board, %GenerationStats{ player_count: player_count }) when player_count == 0, do: board
+  defp randomize_player_generals(board, %GenerationStats{ player_count: player_count }) when player_count > 0 do
+    Enum.reduce(1..player_count, {board, Board.occupied_coordinates(board)}, fn(player_id, {board, placed_coords}) ->
+      coords = Dimensions.random_coordinates(board.dimensions, exclude: placed_coords)
       existing_cell = Board.at(board, coords)
       new_cell = Cell.make(:general, existing_cell, owner: player_id)
       {
         Board.replace_cell(board, coords, new_cell),
-        [coords | placed_general_coords]
+        [coords | placed_coords]
       }
     end) |> elem(0)
   end
@@ -39,19 +40,16 @@ defmodule Generals.Board.BasicRandomization do
     Enum.random(minimum..maximum)
   end
 
-  defp convert_random_empty_cells_to_type(board, count, type) do
-    cond do
-      count > 0 ->
-        Enum.reduce(1..count, {board, []}, fn(_, {board, placed_coords}) ->
-          coords = Dimensions.random_coordinates(board.dimensions, exclude: placed_coords)
-          existing_cell = Board.at(board, coords)
-          new_cell = Cell.make(type, existing_cell)
-          {
-            Board.replace_cell(board, coords, new_cell),
-            [coords | placed_coords]
-          }
-        end) |> elem(0)
-      count == 0 -> board
-    end
+  defp convert_random_empty_cells_to_type(board, count, _) when count == 0, do: board
+  defp convert_random_empty_cells_to_type(board, count, type) when count > 0 do
+    Enum.reduce(1..count, {board, Board.occupied_coordinates(board)}, fn(_, {board, placed_coords}) ->
+      coords = Dimensions.random_coordinates(board.dimensions, exclude: placed_coords)
+      existing_cell = Board.at(board, coords)
+      new_cell = Cell.make(type, existing_cell)
+      {
+        Board.replace_cell(board, coords, new_cell),
+        [coords | placed_coords]
+      }
+    end) |> elem(0)
   end
 end

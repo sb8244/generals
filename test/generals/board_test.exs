@@ -15,7 +15,9 @@ defmodule Generals.BoardTest do
       Enum.each(board.cells, fn(l) ->
         assert length(l) == 5
         Enum.each(l, fn(cell) ->
-          assert cell == %Board.Cell{}
+          %Board.Cell{ population_count: 0, type: :plains, owner: nil, row: row, column: col } = cell
+          assert row
+          assert col
         end)
       end)
     end
