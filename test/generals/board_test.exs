@@ -22,25 +22,13 @@ defmodule Generals.BoardTest do
   end
 
   describe "randomize_board/2" do
-    setup do
+    test "there are exactly player_count generals on the map" do
       board = Board.get_new(rows: 10, columns: 15)
-      {:ok, board: board}
-    end
-
-    test "there are exactly player_count generals on the map", %{ board: board } do
-      random_board = Board.randomize_board(board, player_count: 3)
+      random_board = Board.randomize_board(board, %Board.GenerationStats{ player_count: 3 })
 
       cells = List.flatten(random_board.cells)
       assert Enum.filter(cells, &(&1.type == :general))
         |> length == 3
-    end
-
-    test "generals can't be placed on top of each other" do
-      board = Board.get_new(rows: 2, columns: 2)
-      random_board = Board.randomize_board(board, player_count: 4)
-      cells = List.flatten(random_board.cells)
-      assert Enum.filter(cells, &(&1.type == :general))
-        |> length == 4
     end
   end
 end

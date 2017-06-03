@@ -1,6 +1,10 @@
 defmodule Generals.Board.Dimensions do
   defstruct rows: 0, columns: 0
 
+  def size(dimensions) do
+    dimensions.rows * dimensions.columns
+  end
+
   def random_coordinates(dimensions, exclude: excluded_coords) do
     r_rand = :rand.uniform(dimensions.rows) - 1
     c_rand = :rand.uniform(dimensions.columns) - 1

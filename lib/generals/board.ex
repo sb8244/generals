@@ -9,23 +9,15 @@ defmodule Generals.Board do
     %__MODULE__{ cells: empty_cells, dimensions: %Dimensions{ rows: rows, columns: columns } }
   end
 
-  def randomize_board(board, player_count: player_count) do
-    Enum.reduce(1..player_count, {board, []}, fn(player_id, {board, placed_general_coords}) ->
-      {row, col} = Dimensions.random_coordinates(board.dimensions, exclude: placed_general_coords)
-      existing_cell = at(board, {row, col})
-      new_cell = Cell.make_general(existing_cell, owner: player_id)
-      {
-        replace_cell(board, {row, col}, new_cell),
-        [{row, col} | placed_general_coords]
-      }
-    end) |> elem(0)
+  def randomize_board(board, generation_stats) do
+    Generals.Board.Randomization.randomize_board(board, generation_stats)
   end
 
-  defp at(board, {row, col}) do
+  def at(board, {row, col}) do
     board.cells |> Enum.at(row) |> Enum.at(col)
   end
 
-  defp replace_cell(board, {row, col}, cell) do
+  def replace_cell(board, {row, col}, cell) do
     new_col = List.replace_at(Enum.at(board.cells, row), col, cell)
     new_cells = List.replace_at(board.cells, row, new_col)
     Map.put(board, :cells, new_cells)
