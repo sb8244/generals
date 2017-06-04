@@ -36,6 +36,7 @@ defmodule Generals.Mixfile do
   defp deps do
     [
       {:bunt, "~> 0.1.0"}, # Colorize the text visualuzation
+      {:mock, "~> 0.2.0", only: :test},
     ]
   end
 end
