@@ -1,6 +1,10 @@
 defmodule Generals.Board.Cell do
   defstruct population_count: 0, owner: nil, type: :plains, row: nil, column: nil
 
+  def coords(cell) do
+    {cell.row, cell.column}
+  end
+
   def make(:general, cell, owner: owner) do
     Map.merge(cell, %{owner: owner, type: :general})
   end
@@ -11,5 +15,9 @@ defmodule Generals.Board.Cell do
 
   def make(:town, cell) do
     Map.merge(cell, %{type: :town, population_count: 15})
+  end
+
+  def tick_population(cell) do
+    Map.merge(cell, %{population_count: cell.population_count + 1})
   end
 end
