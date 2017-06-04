@@ -3,7 +3,7 @@ defmodule Generals.GamesSupervisor do
 
   def get_game(id, opts \\ []) do
     options = Keyword.merge([name: __MODULE__], opts)
-    Supervisor.start_child(options[:name], [%{game_id: id}]) |> case do
+    Supervisor.start_child(options[:name], [%{game_id: id, board: opts[:board]}]) |> case do
       {:ok, pid} -> pid
       {:error, {:already_started, pid}} -> pid
     end

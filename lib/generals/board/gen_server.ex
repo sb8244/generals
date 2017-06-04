@@ -4,7 +4,7 @@ defmodule Generals.Board.GenServer do
   end
 
   def init([board: board]) do
-    {:ok, %{ board: board, turn: 0 }}
+    {:ok, %{board: board, turn: 0 }}
   end
 
   def get_board(pid) do
