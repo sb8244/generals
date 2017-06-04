@@ -5,7 +5,7 @@ defmodule Generals.Application do
     import Supervisor.Spec, warn: false
 
     children = [
-      supervisor(Registry, [:unique, Generals.GameSupervisor.get_registry_name]),
+      supervisor(Registry, [:unique, Generals.Game.Supervisor.get_registry_name]),
       supervisor(Generals.GamesSupervisor, []),
     ]
 

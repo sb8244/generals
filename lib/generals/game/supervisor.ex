@@ -1,4 +1,4 @@
-defmodule Generals.GameSupervisor do
+defmodule Generals.Game.Supervisor do
   use Supervisor
 
   alias Generals.Board
@@ -16,6 +16,6 @@ defmodule Generals.GameSupervisor do
   end
 
   def get_registry_name() do
-    Generals.GameSupervisorRegistry
+    Generals.Game.SupervisorRegistry
   end
 end
