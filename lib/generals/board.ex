@@ -10,7 +10,11 @@ defmodule Generals.Board do
     %__MODULE__{ cells: empty_cells, dimensions: %Dimensions{ rows: rows, columns: columns } }
   end
 
-  def randomize_board(board, generation_stats, opts \\ []) do
+  def tick(board = %Board{}, turn) do
+    board
+  end
+
+  def randomize_board(board = %Board{}, generation_stats, opts \\ []) do
     options = Keyword.merge([randomization_strategy: Board.BasicRandomization], opts)
     options[:randomization_strategy].randomize_board(board, generation_stats)
   end
