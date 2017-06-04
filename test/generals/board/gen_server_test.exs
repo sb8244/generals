@@ -1,7 +1,5 @@
 defmodule Generals.Board.GenServerTest do
-  use ExUnit.Case, async: false
-
-  import Mock
+  use ExUnit.Case, async: true
 
   alias Generals.Board
 
@@ -26,11 +24,24 @@ defmodule Generals.Board.GenServerTest do
       assert turn2 == 2
     end
 
-    test "the board undergoes a tick", %{pid: pid, board: board} do
-      with_mock Board, [get_new: fn(_) -> board end, tick: fn(_, _) -> :next_board end] do
-        %{ board: :next_board } = Board.GenServer.tick(pid)
-        assert called(Board.tick(board, 1))
-      end
+    test "the board undergoes a tick" do
+      board = Board.get_new(rows: 10, columns: 10)
+        |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, type: :general })
+      {:ok, pid} = Board.GenServer.start_link(board)
+
+      next_state = Board.GenServer.tick(pid)
+      expected_next_board = Board.replace_cell(board, {0, 0}, %Board.Cell{ row: 0, column: 0, type: :general, population_count: 1 })
+      assert next_state == %{
+        turn: 1,
+        board: expected_next_board
+      }
+
+      next_state = Board.GenServer.tick(pid)
+      expected_next_board = Board.replace_cell(board, {0, 0}, %Board.Cell{ row: 0, column: 0, type: :general, population_count: 2 })
+      assert next_state == %{
+        turn: 2,
+        board: expected_next_board
+      }
     end
   end
 end
