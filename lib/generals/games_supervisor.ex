@@ -16,7 +16,7 @@ defmodule Generals.GamesSupervisor do
 
   def init([]) do
     children = [
-      supervisor(Generals.Game.Supervisor, [], restart: :transient)
+      supervisor(Generals.Game.Supervisor, [], restart: :temporary)
     ]
 
     supervise(children, strategy: :simple_one_for_one)
