@@ -1,4 +1,4 @@
-defmodule Generals.Board.GenServer do
+defmodule Generals.Game.BoardServer do
   def start_link(board) do
     GenServer.start_link(__MODULE__, [board: board])
   end

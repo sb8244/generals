@@ -1,21 +1,20 @@
 defmodule Generals.Game.Supervisor do
   use Supervisor
 
-  alias Generals.Board
   alias Generals.Game
 
   def start_link(opts = %{game_id: id}) do
     Supervisor.start_link(__MODULE__, Map.drop(opts, [:game_id]), name: {:via, Registry, {get_registry_name(), id}})
   end
 
-  def get_board_pid(sup_pid), do: find_child_type(sup_pid, Board.GenServer)
+  def get_board_pid(sup_pid), do: find_child_type(sup_pid, Game.BoardServer)
 
   def init(opts = %{board: board}) do
     this = self()
     tick_fn = fn() -> tick(this) end
 
     children = [
-      worker(Board.GenServer, [board], restart: :transient),
+      worker(Game.BoardServer, [board], restart: :transient),
       worker(Game.TickServer, [%{ticker: tick_fn, timeout: Map.get(opts, :timeout, 1000)}], restart: :transient),
     ]
 
@@ -28,7 +27,7 @@ defmodule Generals.Game.Supervisor do
 
   defp tick(sup_pid) do
     get_board_pid(sup_pid)
-      |> Board.GenServer.tick
+      |> Game.BoardServer.tick
   end
 
   defp find_child_type(sup_pid, type) do
