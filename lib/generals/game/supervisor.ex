@@ -4,20 +4,22 @@ defmodule Generals.Game.Supervisor do
   alias Generals.Board
   alias Generals.Game
 
-  def start_link(%{game_id: id, board: board = %Board{}}) do
-    Supervisor.start_link(__MODULE__, [board: board], name: {:via, Registry, {get_registry_name(), id}})
+  def start_link(opts = %{game_id: id}) do
+    Supervisor.start_link(__MODULE__, Map.drop(opts, [:game_id]), name: {:via, Registry, {get_registry_name(), id}})
   end
 
   def get_board_pid(sup_pid), do: find_child_type(sup_pid, Board.GenServer)
   def tick(sup_pid) do
-    IO.inspect {sup_pid, :tick}
+    get_board_pid(sup_pid)
+      |> Board.GenServer.tick
   end
 
-  def init([board: board]) do
-    tick_fn = fn() -> tick(self()) end
+  def init(opts = %{board: board}) do
+    this = self()
+    tick_fn = fn() -> tick(this) end
     children = [
       worker(Board.GenServer, [board], restart: :transient),
-      worker(Game.TickServer, [%{ticker: tick_fn}], restart: :transient),
+      worker(Game.TickServer, [%{ticker: tick_fn, timeout: Map.get(opts, :timeout, 1000)}], restart: :transient),
     ]
 
     supervise(children, strategy: :one_for_one)
