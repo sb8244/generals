@@ -9,14 +9,11 @@ defmodule Generals.Game.Supervisor do
   end
 
   def get_board_pid(sup_pid), do: find_child_type(sup_pid, Board.GenServer)
-  def tick(sup_pid) do
-    get_board_pid(sup_pid)
-      |> Board.GenServer.tick
-  end
 
   def init(opts = %{board: board}) do
     this = self()
     tick_fn = fn() -> tick(this) end
+
     children = [
       worker(Board.GenServer, [board], restart: :transient),
       worker(Game.TickServer, [%{ticker: tick_fn, timeout: Map.get(opts, :timeout, 1000)}], restart: :transient),
@@ -27,6 +24,11 @@ defmodule Generals.Game.Supervisor do
 
   def get_registry_name() do
     Game.SupervisorRegistry
+  end
+
+  defp tick(sup_pid) do
+    get_board_pid(sup_pid)
+      |> Board.GenServer.tick
   end
 
   defp find_child_type(sup_pid, type) do
