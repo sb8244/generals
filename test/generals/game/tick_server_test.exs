@@ -10,7 +10,7 @@ defmodule Generals.Game.TickServerTest do
     end
 
     {:ok, _pid} = TickServer.start_link(%{ticker: ticker, timeout: 10})
-    assert_receive :tick, 11
-    assert_receive :tick, 11
+    assert_receive :tick, 15
+    assert_receive :tick, 15
   end
 end
