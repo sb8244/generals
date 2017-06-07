@@ -5,6 +5,10 @@ defmodule Generals.Board.Cell do
     {cell.row, cell.column}
   end
 
+  def moveable?(cell) do
+    cell.type != :mountain
+  end
+
   def make(:general, cell, owner: owner) do
     Map.merge(cell, %{owner: owner, type: :general})
   end
