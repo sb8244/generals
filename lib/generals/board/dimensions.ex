@@ -1,6 +1,11 @@
 defmodule Generals.Board.Dimensions do
   defstruct rows: 0, columns: 0
 
+  def valid_coords?(%__MODULE__{rows: rows, columns: columns}, {r,c}) do
+    r >= 0 && c >= 0 &&
+    r < rows && c < columns
+  end
+
   def size(dimensions) do
     dimensions.rows * dimensions.columns
   end
