@@ -9,6 +9,10 @@ defmodule Generals.Board.Cell do
     cell.type != :mountain
   end
 
+  def owned_by?(cell, owner) do
+    cell.owner == owner
+  end
+
   def make(:general, cell, owner: owner) do
     Map.merge(cell, %{owner: owner, type: :general})
   end

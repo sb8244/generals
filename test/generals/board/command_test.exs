@@ -5,10 +5,16 @@ defmodule Generals.Board.CommandTest do
   alias Generals.Board.Command
 
   describe "get_move_command/1" do
-    @invalid {:error, "Invalid move coordinates"}
+    @invalid {:error, "Cannot move to this space"}
+    @invalid_player {:error, "Cannot move from a space you don't hold"}
 
     setup do
       board = Generals.Board.get_new(rows: 3, columns: 3)
+      owned_cells = Enum.map(board.cells, fn(row) ->
+        Enum.map(row, &(Map.put(&1, :owner, 1)))
+      end)
+      board = Map.merge(board, %{cells: owned_cells})
+
       mountain_board = Board.replace_cell(board, {1,1}, %Board.Cell{ row: 1, column: 1, type: :mountain })
 
       {:ok, board: board, mountain_board: mountain_board}
@@ -21,6 +27,11 @@ defmodule Generals.Board.CommandTest do
         to: {0,1},
         type: :move
       }
+    end
+
+    test "the moving player must own the space they are moving from", %{board: board} do
+      unowned_board = Board.replace_cell(board, {0,0}, %Board.Cell{ row: 0, column: 0, owner: nil })
+      assert Command.get_move_command(player: 1, from: {0,0}, to: {0, 1}, board: unowned_board) == @invalid_player
     end
 
     test "an invalid coord will be an error", %{ board: board } do
