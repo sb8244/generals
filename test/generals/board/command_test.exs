@@ -85,6 +85,18 @@ defmodule Generals.Board.CommandTest do
       assert Board.at(new_board, {1,2}) == %Board.Cell{row: 1, column: 2, type: :plains, owner: 1, population_count: 9}
     end
 
+    Enum.each([0, 1], fn(count) ->
+      test "moving with #{count} armies is a no-op", %{board: board} do
+        command = Command.get_move_command(player: 1, from: {1,1}, to: {1,2}, board: board)
+        check_board = board
+          |> Board.replace_cell({1,1}, %Board.Cell{ row: 1, column: 1, type: :plains, owner: 1, population_count: unquote(count) })
+          |> Board.replace_cell({1,2}, %Board.Cell{ row: 1, column: 2, type: :town, owner: 2, population_count: 5 })
+        {:ok, new_board} = Command.execute(command, check_board)
+        assert Board.at(new_board, {1,1}) == %Board.Cell{row: 1, column: 1, type: :plains, owner: 1, population_count: unquote(count)}
+        assert Board.at(new_board, {1,2}) == %Board.Cell{row: 1, column: 2, type: :town, owner: 2, population_count: 5}
+      end
+    end)
+
     # test "moving with a percentage will split the army up, moving only the percentage to the plain"
 
     test "moving onto a town which is less health will overtake the town for the player", %{board: board} do

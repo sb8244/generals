@@ -52,6 +52,8 @@ defmodule Generals.Board.Command do
         board
           |> Board.replace_cell(from, Map.merge(from_cell, %{ population_count: 1 }))
           |> Board.replace_cell(to, Map.merge(to_cell, %{ population_count: new_to_population }))
+      {:noop} ->
+        board
     end
   end
 
@@ -67,6 +69,9 @@ defmodule Generals.Board.Command do
   defp compute_move(false, from_armies: from_armies, to_armies: to_armies)
     when from_armies > 0 and to_armies == from_armies,
     do: {:to, 0}
+  defp compute_move(false, from_armies: from_armies, to_armies: _)
+    when from_armies <= 0,
+    do: {:noop}
 
   defp convert_general(board, :general, to_coords: to_coords, from_owner: from, to_owner: to) do
     to_cell = Board.at(board, to_coords)

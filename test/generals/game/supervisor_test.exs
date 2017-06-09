@@ -20,7 +20,7 @@ defmodule Generals.Game.SupervisorTest do
     board_pid = Game.Supervisor.get_board_pid(sup)
 
     assert Game.BoardServer.get_board(board_pid).cells == [[%Board.Cell{ column: 0, row: 0, owner: 1, population_count: 0, type: :general }]]
-    Process.sleep(11)
+    Process.sleep(15)
     assert Game.BoardServer.get_board(board_pid).cells == [[%Board.Cell{ column: 0, row: 0, owner: 1, population_count: 1, type: :general }]]
   end
 end
