@@ -134,4 +134,19 @@ defmodule Generals.BoardTest do
       assert Board.at(board, {0,0}) |> Map.take([:population_count]) == %{population_count: 0}
     end
   end
+
+  describe "convert_owner_on_all_owned_cells/2" do
+    test "all cells for the 'from' owner are replaced by the 'to' owner" do
+      board = Board.get_new(rows: 3, columns: 3)
+        |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, type: :plains, owner: 1, population_count: 0 })
+        |> Board.replace_cell({0, 1}, %Board.Cell{ row: 0, column: 1, type: :town, owner: 1, population_count: 1 })
+        |> Board.replace_cell({0, 2}, %Board.Cell{ row: 0, column: 2, type: :general, owner: 1, population_count: 2 })
+        |> Board.replace_cell({1, 2}, %Board.Cell{ row: 1, column: 2, type: :town, owner: 2, population_count: 2 })
+      new_board = Board.convert_owner_on_all_owned_cells(board, from: 1, to: 2)
+      assert Board.at(new_board, {0,0}) |> Map.take([:owner, :type, :population_count]) == %{owner: 2, population_count: 0, type: :plains}
+      assert Board.at(new_board, {0,1}) |> Map.take([:owner, :type, :population_count]) == %{owner: 2, population_count: 1, type: :town}
+      assert Board.at(new_board, {0,2}) |> Map.take([:owner, :type, :population_count]) == %{owner: 2, population_count: 2, type: :general}
+      assert Board.at(new_board, {1,2}) |> Map.take([:owner, :type, :population_count]) == %{owner: 2, population_count: 2, type: :town}
+    end
+  end
 end

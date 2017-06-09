@@ -44,6 +44,18 @@ defmodule Generals.Board do
     Map.put(board, :cells, new_cells)
   end
 
+  def convert_owner_on_all_owned_cells(board, from: from, to: to) do
+    new_cells = Enum.map(board.cells, fn(row) ->
+      Enum.map(row, fn(cell) ->
+        case cell.owner == from do
+          true -> Map.put(cell, :owner, to)
+          false -> cell
+        end
+      end)
+    end)
+    Map.put(board, :cells, new_cells)
+  end
+
   defp matrix_of_cells(rows: rows, columns: columns) do
     Enum.map((0..rows-1), fn(r) ->
       Enum.map((0..columns-1), fn(c) ->
