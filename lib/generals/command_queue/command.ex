@@ -1,4 +1,4 @@
-defmodule Generals.Board.Command do
+defmodule Generals.CommandQueue.Command do
   defstruct from: {nil, nil}, to: {nil,nil}, type: nil, player: nil
 
   alias Generals.Board

@@ -1,8 +1,8 @@
-defmodule Generals.Board.CommandTest do
+defmodule Generals.CommandQueue.CommandTest do
   use ExUnit.Case, async: true
 
   alias Generals.Board
-  alias Generals.Board.Command
+  alias Generals.CommandQueue.Command
 
   describe "get_move_command/1" do
     @invalid {:error, "Cannot move to this space"}
