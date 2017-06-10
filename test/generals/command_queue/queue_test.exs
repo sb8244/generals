@@ -40,27 +40,6 @@ defmodule Generals.CommandQueue.QueueTest do
     end
   end
 
-  describe "pop/2" do
-    test "on an empty queue is nil", %{queue: queue} do
-      assert Queue.pop(queue, 1) == {nil, %Queue{turns: %{1 => []}}}
-    end
-
-    test "the next command can be popped for a turn", %{queue: queue} do
-      command = %Command{player: 1}
-      command2 = %Command{player: 2}
-      queue = queue
-        |> Queue.add(1, command)
-        |> Queue.add(1, command2)
-
-      {item, queue} = Queue.pop(queue, 1)
-      assert item == command
-      {item, queue} = Queue.pop(queue, 1)
-      assert item == command2
-      {item, _queue} = Queue.pop(queue, 1)
-      assert item == nil
-    end
-  end
-
   describe "clear_for_player/3" do
     test "can be called with an empty queue", %{queue: queue} do
       assert Queue.clear_for_player(queue, player: 1, from_turn: 2) == queue

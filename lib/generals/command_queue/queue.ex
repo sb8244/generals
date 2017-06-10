@@ -17,12 +17,6 @@ defmodule Generals.CommandQueue.Queue do
     Map.put(queue, :turns, add_to_turns(queue, turn, command))
   end
 
-  def pop(queue, turn) when is_integer(turn) do
-    {item, new_turn_queue} = next_command(for_turn(queue, turn))
-    new_turns = Map.put(queue.turns, turn, new_turn_queue)
-    {item, Map.put(queue, :turns, new_turns)}
-  end
-
   def clear_for_player(queue, player: player, from_turn: turn) when is_integer(turn) do
     new_turns = Enum.map(queue.turns, fn({iter_turn, turn_queue}) ->
       case iter_turn >= turn do
@@ -32,9 +26,6 @@ defmodule Generals.CommandQueue.Queue do
     end) |> Enum.into(%{})
     Map.put(queue, :turns, new_turns)
   end
-
-  defp next_command([item | new_turn_queue]), do: {item, new_turn_queue}
-  defp next_command([]), do: {nil, []}
 
   defp add_to_turns(queue, turn, command = %{player: player}) do
     current_turn_queue = for_turn(queue, turn)
