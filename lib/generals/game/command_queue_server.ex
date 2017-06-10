@@ -9,18 +9,18 @@ defmodule Generals.Game.CommandQueueServer do
   def commands_for_turn(pid, turn) do
     Agent.get(pid, fn(queue) ->
       Queue.for_turn(queue, turn)
-    end)
+    end, 1000)
   end
 
   def add_command(pid, turn, command = %Command{}) do
     Agent.get_and_update(pid, fn(queue) ->
       {:ok, Queue.add(queue, turn, command)}
-    end)
+    end, 1000)
   end
 
   def clear_player_commands(pid, turn, player: player) do
     Agent.get_and_update(pid, fn(queue) ->
       {:ok, Queue.clear_for_player(queue, player: player, from_turn: turn)}
-    end)
+    end, 1000)
   end
 end

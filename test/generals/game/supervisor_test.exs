@@ -23,4 +23,62 @@ defmodule Generals.Game.SupervisorTest do
     Process.sleep(15)
     assert Game.BoardServer.get_board(board_pid).cells == [[%Board.Cell{ column: 0, row: 0, owner: 1, population_count: 1, type: :general }]]
   end
+
+  test "commands for a turn are executed on a tick", context do
+    board = Board.get_new(rows: 2, columns: 2)
+      |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 1, population_count: 3 })
+
+    {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, timeout: 20 })
+    assert Game.Supervisor.queue_move(sup, player: 1, from: {0,0}, to: {0,1}) == :ok
+
+    board_pid = Game.Supervisor.get_board_pid(sup)
+    assert Game.BoardServer.get_board(board_pid)
+      |> Board.at({0,1})
+      |> Map.take([:owner, :population_count]) == %{owner: nil, population_count: 0}
+
+    Process.sleep(30)
+
+    %{board: board, turn: turn} = Game.BoardServer.get(board_pid)
+
+    assert turn == 1
+    assert board
+      |> Board.at({0,1})
+      |> Map.take([:owner, :population_count]) == %{owner: 1, population_count: 2}
+  end
+
+  describe "queue_move/2" do
+    test "the command queue has the given move added as a command", context do
+      board = Board.get_new(rows: 2, columns: 2)
+        |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 1, population_count: 3 })
+
+      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board })
+      assert Game.Supervisor.queue_move(sup, player: 1, from: {0,0}, to: {0,1}) == :ok
+
+      queue_pid = Game.Supervisor.get_command_queue_pid(sup)
+      assert length(Game.CommandQueueServer.commands_for_turn(queue_pid, 1)) == 1
+    end
+
+    test "an invalid move is an error", context do
+      board = Board.get_new(rows: 2, columns: 2)
+      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board })
+      assert Game.Supervisor.queue_move(sup, player: 1, from: {0,0}, to: {0,1}) == {:error, "Cannot move from a space you don't hold"}
+    end
+  end
+
+  describe "clear_future_moves/2" do
+    test "the future command queue for a player is cleared out", context do
+      board = Board.get_new(rows: 2, columns: 2)
+        |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 1, population_count: 3 })
+        |> Board.replace_cell({1, 1}, %Board.Cell{ row: 1, column: 1, owner: 1, population_count: 3 })
+        |> Board.replace_cell({1, 0}, %Board.Cell{ row: 1, column: 0, owner: 2, population_count: 3 })
+      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board })
+      queue_pid = Game.Supervisor.get_command_queue_pid(sup)
+      assert Game.Supervisor.queue_move(sup, player: 1, from: {0,0}, to: {0,1}) == :ok
+      assert Game.Supervisor.queue_move(sup, player: 1, from: {1,1}, to: {0,1}) == :ok
+      assert Game.Supervisor.queue_move(sup, player: 2, from: {1,0}, to: {1,1}) == :ok
+      assert length(Game.CommandQueueServer.commands_for_turn(queue_pid, 1)) == 2
+      assert length(Game.CommandQueueServer.commands_for_turn(queue_pid, 2)) == 1
+      assert Game.Supervisor.clear_future_moves(sup, player: 1) == :ok
+    end
+  end
 end
