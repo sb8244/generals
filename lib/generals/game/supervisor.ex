@@ -4,6 +4,25 @@ defmodule Generals.Game.Supervisor do
   alias Generals.Game
   alias Generals.CommandQueue.Command
 
+  def queue_move(sup_pid, player: player, from: from, to: to) do
+    %{board: board, turn: turn} = get_board_pid(sup_pid)
+      |> Game.BoardServer.get
+
+    case Command.get_move_command(player: player, from: from, to: to, board: board) do
+      command = %Command{} ->
+        get_command_queue_pid(sup_pid)
+          |> Game.CommandQueueServer.add_command(turn + 1, command)
+      err -> err
+    end
+  end
+
+  def clear_future_moves(sup_pid, player: player) do
+    %{turn: turn} = get_board_pid(sup_pid)
+      |> Game.BoardServer.get
+    get_command_queue_pid(sup_pid)
+      |> Game.CommandQueueServer.clear_player_commands(turn + 1, player: player)
+  end
+
   def start_link(opts = %{game_id: id}) do
     Supervisor.start_link(__MODULE__, Map.drop(opts, [:game_id]), name: {:via, Registry, {get_registry_name(), id}})
   end
@@ -23,25 +42,6 @@ defmodule Generals.Game.Supervisor do
 
   def get_registry_name() do
     Game.SupervisorRegistry
-  end
-
-  def queue_move(sup_pid, player: player, from: from, to: to) do
-    %{board: board, turn: turn} = get_board_pid(sup_pid)
-      |> Game.BoardServer.get
-
-    case Command.get_move_command(player: player, from: from, to: to, board: board) do
-      command = %Command{} ->
-        get_command_queue_pid(sup_pid)
-          |> Game.CommandQueueServer.add_command(turn + 1, command)
-      err -> err
-    end
-  end
-
-  def clear_future_moves(sup_pid, player: player) do
-    %{turn: turn} = get_board_pid(sup_pid)
-      |> Game.BoardServer.get
-    get_command_queue_pid(sup_pid)
-      |> Game.CommandQueueServer.clear_player_commands(turn + 1, player: player)
   end
 
   def get_board_pid(sup_pid), do: find_child_type(sup_pid, Game.BoardServer)
