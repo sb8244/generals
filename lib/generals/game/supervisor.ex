@@ -4,6 +4,10 @@ defmodule Generals.Game.Supervisor do
   alias Generals.Game
   alias Generals.CommandQueue.Command
 
+  @doc """
+  Queues a move for the given player from {r,c} to {r,c}. The player must own the
+  from coordinates at the time of move creation, or an error will occur.
+  """
   def queue_move(sup_pid, player: player, from: from, to: to) do
     %{board: board, turn: turn} = get_board_pid(sup_pid)
       |> Game.BoardServer.get
@@ -16,6 +20,10 @@ defmodule Generals.Game.Supervisor do
     end
   end
 
+  @doc """
+  Clears out all moves from next turn and on for a given player in a game. The next turn
+  is used because the current turn moves have already executed.
+  """
   def clear_future_moves(sup_pid, player: player) do
     %{turn: turn} = get_board_pid(sup_pid)
       |> Game.BoardServer.get
