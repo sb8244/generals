@@ -26,10 +26,10 @@ defmodule Generals.Game.SupervisorTest do
 
   test "commands for a turn are executed on a tick", context do
     board = Board.get_new(rows: 2, columns: 2)
-      |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 1, population_count: 3 })
+      |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 0, population_count: 3 })
 
     {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, timeout: 20, user_ids: ["a"] })
-    assert Game.Supervisor.queue_move(sup, player: 1, from: {0,0}, to: {0,1}) == :ok
+    assert Game.Supervisor.queue_move(sup, user: "a", from: {0,0}, to: {0,1}) == :ok
 
     board_pid = Game.Supervisor.get_board_pid(sup)
     assert Game.BoardServer.get_board(board_pid)
@@ -43,16 +43,16 @@ defmodule Generals.Game.SupervisorTest do
     assert turn == 1
     assert board
       |> Board.at({0,1})
-      |> Map.take([:owner, :population_count]) == %{owner: 1, population_count: 2}
+      |> Map.take([:owner, :population_count]) == %{owner: 0, population_count: 2}
   end
 
   describe "queue_move/2" do
     test "the command queue has the given move added as a command", context do
       board = Board.get_new(rows: 2, columns: 2)
-        |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 1, population_count: 3 })
+        |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 0, population_count: 3 })
 
       {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, user_ids: ["a"] })
-      assert Game.Supervisor.queue_move(sup, player: 1, from: {0,0}, to: {0,1}) == :ok
+      assert Game.Supervisor.queue_move(sup, user: "a", from: {0,0}, to: {0,1}) == :ok
 
       queue_pid = Game.Supervisor.get_command_queue_pid(sup)
       assert length(Game.CommandQueueServer.commands_for_turn(queue_pid, 1)) == 1
@@ -61,24 +61,46 @@ defmodule Generals.Game.SupervisorTest do
     test "an invalid move is an error", context do
       board = Board.get_new(rows: 2, columns: 2)
       {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, user_ids: ["a"] })
-      assert Game.Supervisor.queue_move(sup, player: 1, from: {0,0}, to: {0,1}) == {:error, "Cannot move from a space you don't hold"}
+      assert Game.Supervisor.queue_move(sup, user: "a", from: {0,0}, to: {0,1}) == {:error, "Cannot move from a space you don't hold"}
+    end
+
+    test "an invalid user->player is an error", context do
+      board = Board.get_new(rows: 2, columns: 2)
+      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, user_ids: ["a"] })
+      assert Game.Supervisor.queue_move(sup, user: "b", from: {0,0}, to: {0,1}) == {:error, "You are not in this game"}
     end
   end
 
   describe "clear_future_moves/2" do
+    test "an invalid user->player is an error", context do
+      board = Board.get_new(rows: 2, columns: 2)
+      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, user_ids: ["a"] })
+      assert Game.Supervisor.clear_future_moves(sup, user: "b") == {:error, "You are not in this game"}
+    end
+
     test "the future command queue for a player is cleared out", context do
       board = Board.get_new(rows: 2, columns: 2)
-        |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 1, population_count: 3 })
-        |> Board.replace_cell({1, 1}, %Board.Cell{ row: 1, column: 1, owner: 1, population_count: 3 })
-        |> Board.replace_cell({1, 0}, %Board.Cell{ row: 1, column: 0, owner: 2, population_count: 3 })
-      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, user_ids: ["a"] })
+      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, user_ids: ["a", "b"] })
+
+      player_server = Game.Supervisor.get_player_server_pid(sup)
+      board_server = Game.Supervisor.get_board_pid(sup)
+      a_player = Game.PlayerServer.get_active_player_id(player_server, "a")
+      b_player = Game.PlayerServer.get_active_player_id(player_server, "b")
+
+      new_board = board
+        |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: a_player, population_count: 3 })
+        |> Board.replace_cell({1, 1}, %Board.Cell{ row: 1, column: 1, owner: a_player, population_count: 3 })
+        |> Board.replace_cell({1, 0}, %Board.Cell{ row: 1, column: 0, owner: b_player, population_count: 3 })
+
+      Game.BoardServer.set_board_for_testing(board_server, new_board)
+
       queue_pid = Game.Supervisor.get_command_queue_pid(sup)
-      assert Game.Supervisor.queue_move(sup, player: 1, from: {0,0}, to: {0,1}) == :ok
-      assert Game.Supervisor.queue_move(sup, player: 1, from: {1,1}, to: {0,1}) == :ok
-      assert Game.Supervisor.queue_move(sup, player: 2, from: {1,0}, to: {1,1}) == :ok
+      assert Game.Supervisor.queue_move(sup, user: "a", from: {0,0}, to: {0,1}) == :ok
+      assert Game.Supervisor.queue_move(sup, user: "a", from: {1,1}, to: {0,1}) == :ok
+      assert Game.Supervisor.queue_move(sup, user: "b", from: {1,0}, to: {1,1}) == :ok
       assert length(Game.CommandQueueServer.commands_for_turn(queue_pid, 1)) == 2
       assert length(Game.CommandQueueServer.commands_for_turn(queue_pid, 2)) == 1
-      assert Game.Supervisor.clear_future_moves(sup, player: 1) == :ok
+      assert Game.Supervisor.clear_future_moves(sup, user: "a") == :ok
     end
   end
 end

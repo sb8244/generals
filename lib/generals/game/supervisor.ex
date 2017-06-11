@@ -5,30 +5,38 @@ defmodule Generals.Game.Supervisor do
   alias Generals.CommandQueue.Command
 
   @doc """
-  Queues a move for the given player from {r,c} to {r,c}. The player must own the
+  Queues a move for the given user from {r,c} to {r,c}. The player must own the
   from coordinates at the time of move creation, or an error will occur.
   """
-  def queue_move(sup_pid, player: player, from: from, to: to) do
-    %{board: board, turn: turn} = get_board_pid(sup_pid)
-      |> Game.BoardServer.get
+  def queue_move(sup_pid, user: user_id, from: from, to: to) do
+    case user_id_to_player_id(sup_pid, user_id) do
+      err = {:error, _} -> err
+      player ->
+        %{board: board, turn: turn} = get_board_pid(sup_pid)
+          |> Game.BoardServer.get
 
-    case Command.get_move_command(player: player, from: from, to: to, board: board) do
-      command = %Command{} ->
-        get_command_queue_pid(sup_pid)
-          |> Game.CommandQueueServer.add_command(turn + 1, command)
-      err -> err
+        case Command.get_move_command(player: player, from: from, to: to, board: board) do
+          command = %Command{} ->
+            get_command_queue_pid(sup_pid)
+              |> Game.CommandQueueServer.add_command(turn + 1, command)
+          err -> err
+        end
     end
   end
 
   @doc """
-  Clears out all moves from next turn and on for a given player in a game. The next turn
+  Clears out all moves from next turn and on for a given user in a game. The next turn
   is used because the current turn moves have already executed.
   """
-  def clear_future_moves(sup_pid, player: player) do
-    %{turn: turn} = get_board_pid(sup_pid)
-      |> Game.BoardServer.get
-    get_command_queue_pid(sup_pid)
-      |> Game.CommandQueueServer.clear_player_commands(turn + 1, player: player)
+  def clear_future_moves(sup_pid, user: user_id) do
+    case user_id_to_player_id(sup_pid, user_id) do
+      err = {:error, _} -> err
+      player ->
+        %{turn: turn} = get_board_pid(sup_pid)
+          |> Game.BoardServer.get
+        get_command_queue_pid(sup_pid)
+          |> Game.CommandQueueServer.clear_player_commands(turn + 1, player: player)
+    end
   end
 
   def start_link(opts = %{game_id: id}) do
@@ -55,6 +63,7 @@ defmodule Generals.Game.Supervisor do
 
   def get_board_pid(sup_pid), do: find_child_type(sup_pid, Game.BoardServer)
   def get_command_queue_pid(sup_pid), do: find_child_type(sup_pid, Game.CommandQueueServer)
+  def get_player_server_pid(sup_pid), do: find_child_type(sup_pid, Game.PlayerServer)
 
   defp tick(sup_pid) do
     board_pid = get_board_pid(sup_pid)
@@ -71,5 +80,14 @@ defmodule Generals.Game.Supervisor do
     Enum.find(Supervisor.which_children(sup_pid), {nil, nil, nil, nil}, fn({mod, _pid, _type, _}) ->
       mod == type
     end) |> elem(1)
+  end
+
+  defp user_id_to_player_id(sup_pid, user_id) do
+    get_player_server_pid(sup_pid)
+      |> Game.PlayerServer.get_active_player_id(user_id)
+      |> case do
+        nil -> {:error, "You are not in this game"}
+        player -> player
+      end
   end
 end

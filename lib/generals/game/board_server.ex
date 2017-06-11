@@ -17,6 +17,10 @@ defmodule Generals.Game.BoardServer do
     GenServer.call(pid, :get_board)
   end
 
+  def set_board_for_testing(pid, board) do
+    GenServer.call(pid, {:set_board, board})
+  end
+
   def tick(pid) do
     GenServer.call(pid, :tick)
   end
@@ -31,6 +35,10 @@ defmodule Generals.Game.BoardServer do
 
   def handle_call(:get_board, _from, state = %{board: board}) do
     {:reply, board, state}
+  end
+
+  def handle_call({:set_board, board}, _from, state) do
+    {:reply, board, Map.put(state, :board, board)}
   end
 
   def handle_call(:tick, _from, %{board: board, turn: turn}) do
