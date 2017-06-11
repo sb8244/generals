@@ -8,26 +8,30 @@ defmodule Generals.GamesSupervisorTest do
   end
 
   describe "get_game/1" do
-    test "a new game supervisor is started if it doesn't exist already", %{ supervisor: sup, board: board } do
-      game_1 = Generals.GamesSupervisor.get_game(1, name: sup, board: board)
-      assert is_pid(game_1)
+    @tag :focus
+    test "nil is returned if it doesn't exist already", %{ supervisor: sup } do
+      assert Generals.GamesSupervisor.get_game(1, name: sup) == nil
     end
 
-    test "an existing game supervisor is returned if it existed already", %{ supervisor: sup, board: board } do
-      game_1a = Generals.GamesSupervisor.get_game(1, name: sup, board: board)
-      game_1b = Generals.GamesSupervisor.get_game(1, name: sup, board: board)
-
-      assert is_pid(game_1a) && is_pid(game_1b)
-      assert game_1a == game_1b
-    end
-
+    @tag :focus
     test "games are identified by their id", %{ supervisor: sup, board: board } do
-      game_1 = Generals.GamesSupervisor.get_game(1, name: sup, board: board)
-      game_2 = Generals.GamesSupervisor.get_game(2, name: sup, board: board)
+      Generals.GamesSupervisor.start_game(1, name: sup, board: board, user_ids: ["a", "b"])
+      Generals.GamesSupervisor.start_game(2, name: sup, board: board, user_ids: ["a", "b"])
+      game_1 = Generals.GamesSupervisor.get_game(1, name: sup)
+      game_2 = Generals.GamesSupervisor.get_game(2, name: sup)
 
       assert is_pid(game_1)
       assert is_pid(game_2)
       assert game_1 != game_2
+    end
+  end
+
+  describe "start_game/1" do
+    test "an existing game supervisor returns an error if already started", %{ supervisor: sup, board: board } do
+      game_1a = Generals.GamesSupervisor.start_game(1, name: sup, board: board, user_ids: ["a", "b"])
+      game_1b = Generals.GamesSupervisor.start_game(1, name: sup, board: board, user_ids: ["a", "b"])
+      assert is_pid(game_1a) && !is_pid(game_1b)
+      assert game_1b == {:error, "Game with this ID already exists"}
     end
   end
 end

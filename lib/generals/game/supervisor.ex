@@ -35,13 +35,14 @@ defmodule Generals.Game.Supervisor do
     Supervisor.start_link(__MODULE__, Map.drop(opts, [:game_id]), name: {:via, Registry, {get_registry_name(), id}})
   end
 
-  def init(opts = %{board: board}) do
+  def init(opts = %{board: board, user_ids: user_ids}) do
     this = self()
     tick_fn = fn() -> tick(this) end
 
     children = [
       worker(Game.BoardServer, [board], restart: :transient),
       worker(Game.CommandQueueServer, [], restart: :transient),
+      worker(Game.PlayerServer, [[user_ids: user_ids]], restart: :transient),
       worker(Game.TickServer, [%{ticker: tick_fn, timeout: Map.get(opts, :timeout, 1000)}], restart: :transient),
     ]
 
