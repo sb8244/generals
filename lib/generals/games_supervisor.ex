@@ -2,6 +2,22 @@ defmodule Generals.GamesSupervisor do
   use Supervisor
 
   @doc """
+  Creates a game for the given users and starts the game via the supervisor
+  {:ok, id, pid} is returned for a successful game
+  {:error, err} is returned for invalid games
+  """
+  def create_game(opts \\ []) do
+    options = Keyword.merge([name: __MODULE__, rows: 25, columns: 35], opts)
+    id = Haikuname.generate_name
+    board = Generals.Board.get_new(rows: options[:rows], columns: options[:columns])
+    user_ids = Keyword.fetch!(options, :user_ids)
+    case start_game(id, board: board, user_ids: user_ids, name: options[:name]) do
+      pid when is_pid(pid) -> {:ok, id, pid}
+      err -> err
+    end
+  end
+
+  @doc """
   Starts a game with a given ID. A game requires a `board` and `user_ids` to start.
   If the given ID is already taken, an error will be returned
   """
