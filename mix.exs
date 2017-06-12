@@ -3,37 +3,36 @@ defmodule Generals.Mixfile do
 
   def project do
     [app: :generals,
-     version: "0.1.0",
+     version: "0.0.1",
      elixir: "~> 1.4",
-     build_embedded: Mix.env == :prod,
+     elixirc_paths: elixirc_paths(Mix.env),
+     compilers: [:phoenix, :gettext] ++ Mix.compilers,
      start_permanent: Mix.env == :prod,
      deps: deps()]
   end
 
-  # Configuration for the OTP application
+  # Configuration for the OTP application.
   #
-  # Type "mix help compile.app" for more information
+  # Type `mix help compile.app` for more information.
   def application do
-    # Specify extra applications you'll use from Erlang/Elixir
-    [
-      extra_applications: [:logger],
-      mod: {Generals.Application, []},
-      applications: []
-    ]
+    [mod: {Generals.Application, []},
+     extra_applications: [:logger, :runtime_tools]]
   end
 
-  # Dependencies can be Hex packages:
+  # Specifies which paths to compile per environment.
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_),     do: ["lib"]
+
+  # Specifies your project dependencies.
   #
-  #   {:my_dep, "~> 0.3.0"}
-  #
-  # Or git/path repositories:
-  #
-  #   {:my_dep, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
-  #
-  # Type "mix help deps" for more examples and options
+  # Type `mix help deps` for examples and options.
   defp deps do
-    [
-      {:mock, "~> 0.2.0", only: :test},
-    ]
+    [{:phoenix, "~> 1.3.0-rc"},
+     {:phoenix_pubsub, "~> 1.0"},
+     {:phoenix_html, "~> 2.6"},
+     {:phoenix_live_reload, "~> 1.0", only: :dev},
+     {:gettext, "~> 0.11"},
+     {:cowboy, "~> 1.0"},
+     {:mock, "~> 0.2.0", only: :test}]
   end
 end
