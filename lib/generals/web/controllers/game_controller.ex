@@ -8,7 +8,7 @@ defmodule Generals.Web.GameController do
   end
 
   def create(conn, _params) do
-    case Generals.Game.create_game(user_ids: [get_user_id(conn)]) do
+    case Generals.Game.create_game(get_user_id(conn)) do
       {:ok, id, _pid} -> redirect(conn, to: game_path(conn, :show, id))
     end
   end
