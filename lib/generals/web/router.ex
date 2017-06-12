@@ -16,7 +16,8 @@ defmodule Generals.Web.Router do
   scope "/", Generals.Web do
     pipe_through :browser # Use the default browser stack
 
-    get "/", PageController, :index
+    get "/", GameController, :index
+    resources "/games", GameController, only: [:index, :show, :create]
   end
 
   # Other scopes may use custom stacks.

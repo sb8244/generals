@@ -1,0 +1,3 @@
+<div>
+  <%= button("Create a new game", to: "/games", class: "btn btn-primary") %>
+</div>
