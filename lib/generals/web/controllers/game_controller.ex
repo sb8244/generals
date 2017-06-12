@@ -8,14 +8,17 @@ defmodule Generals.Web.GameController do
   end
 
   def create(conn, _params) do
-    case Generals.Game.create_game(user_ids: [get_user_id(conn)]) do
+    case Generals.Game.create_game(get_user_id(conn)) do
       {:ok, id, _pid} -> redirect(conn, to: game_path(conn, :show, id))
     end
   end
 
   def show(conn, %{"id" => id}) do
     case Generals.Game.find_user_game(game_id: id, user_id: get_user_id(conn)) do
-      {:ok, _} -> text(conn, inspect({id, get_session(conn, :user_id)}))
+      {:ok, _} ->
+        conn
+          |> assign(:game_id, id)
+          |> render("show.html")
       {:error, why} -> text(conn, why)
     end
   end

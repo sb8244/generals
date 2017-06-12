@@ -1,8 +1,8 @@
-defmodule Generals.Web.UserSocket do
+defmodule Generals.Web.GameSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", Generals.Web.RoomChannel
+  channel "game:*", Generals.Web.GameChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket

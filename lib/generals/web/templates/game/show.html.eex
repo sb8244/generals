@@ -1,0 +1,3 @@
+<div>
+  Playing a game <%= @game_id %>
+</div>

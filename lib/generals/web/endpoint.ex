@@ -1,7 +1,7 @@
 defmodule Generals.Web.Endpoint do
   use Phoenix.Endpoint, otp_app: :generals
 
-  socket "/socket", Generals.Web.UserSocket
+  socket "/socket", Generals.Web.GameSocket
 
   # Serve at "/" the static files from "priv/static" directory.
   #
