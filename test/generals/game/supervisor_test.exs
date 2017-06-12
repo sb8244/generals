@@ -46,6 +46,16 @@ defmodule Generals.Game.SupervisorTest do
       |> Map.take([:owner, :population_count]) == %{owner: 0, population_count: 2}
   end
 
+  describe "player_has_access?/2" do
+    test "returns false when the player isn't in the game", context do
+      board = Board.get_new(rows: 1, columns: 1)
+      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, user_ids: ["a", "b"] })
+      assert Game.Supervisor.player_has_access?(sup, "a") == true
+      assert Game.Supervisor.player_has_access?(sup, "b") == true
+      assert Game.Supervisor.player_has_access?(sup, "c") == false
+    end
+  end
+
   describe "queue_move/2" do
     test "the command queue has the given move added as a command", context do
       board = Board.get_new(rows: 2, columns: 2)

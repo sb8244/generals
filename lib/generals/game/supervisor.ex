@@ -4,6 +4,13 @@ defmodule Generals.Game.Supervisor do
   alias Generals.Game
   alias Generals.CommandQueue.Command
 
+  def player_has_access?(sup_pid, user_id) do
+    case user_id_to_player_id(sup_pid, user_id) do
+      {:error, _} -> false
+      _ -> true
+    end
+  end
+
   @doc """
   Queues a move for the given user from {r,c} to {r,c}. The player must own the
   from coordinates at the time of move creation, or an error will occur.
