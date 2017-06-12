@@ -18,9 +18,7 @@ defmodule Generals.Mixfile do
     [
       extra_applications: [:logger],
       mod: {Generals.Application, []},
-      applications: [
-        :bunt,
-      ]
+      applications: []
     ]
   end
 
@@ -35,7 +33,6 @@ defmodule Generals.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:bunt, "~> 0.1.0"}, # Colorize the text visualuzation
       {:mock, "~> 0.2.0", only: :test},
     ]
   end
