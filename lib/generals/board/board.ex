@@ -12,14 +12,16 @@ defmodule Generals.Board do
   end
 
   def tick(board = %Board{}, turn) do
-    List.flatten(board.cells) |> Enum.reduce(board, fn(cell, next_board) ->
-      ticked_cell = cond do
+    List.flatten(board.cells) |> Enum.reduce(%{board: board, changed_coords: []}, fn(cell, %{board: next_board, changed_coords: changed_coords}) ->
+      cond do
         cell.type == :general && TurnRules.tick_matches(turn, board.turn_rules, :general) -> Cell.tick_population(cell)
         cell.type == :town && TurnRules.tick_matches(turn, board.turn_rules, :town) && cell.owner != nil -> Cell.tick_population(cell)
         cell.type == :plains && TurnRules.tick_matches(turn, board.turn_rules, :plains) && cell.owner != nil && cell.population_count > 0 -> Cell.tick_population(cell)
-        true -> cell
+        true -> nil
+      end |> case do
+        nil -> %{board: next_board, changed_coords: changed_coords}
+        ticked_cell -> %{changed_coords: [Cell.coords(cell) | changed_coords], board: Board.replace_cell(next_board, Cell.coords(cell), ticked_cell)}
       end
-      Board.replace_cell(next_board, Cell.coords(cell), ticked_cell)
     end)
   end
 

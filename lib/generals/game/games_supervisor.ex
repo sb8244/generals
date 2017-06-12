@@ -8,9 +8,10 @@ defmodule Generals.GamesSupervisor do
   """
   def create_game(opts \\ []) do
     options = Keyword.merge([name: __MODULE__, rows: 25, columns: 35], opts)
+    user_ids = Keyword.fetch!(options, :user_ids)
     id = Haikuname.generate_name
     board = Generals.Board.get_new(rows: options[:rows], columns: options[:columns])
-    user_ids = Keyword.fetch!(options, :user_ids)
+      |> Generals.Board.randomize_board(Generals.Board.GenerationStats.for_game(player_count: length(user_ids)))
     case start_game(id, board: board, user_ids: user_ids, name: options[:name]) do
       pid when is_pid(pid) -> {:ok, id, pid}
       err -> err

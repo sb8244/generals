@@ -26,24 +26,31 @@ defmodule Generals.Game.SupervisorTest do
 
   test "commands for a turn are executed on a tick", context do
     board = Board.get_new(rows: 2, columns: 2)
-      |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 0, population_count: 3 })
+      |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 0, population_count: 3, type: :town })
+      |> Board.replace_cell({1, 0}, %Board.Cell{ row: 1, column: 0, type: :town, owner: 0 })
 
     {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, timeout: 20, user_ids: ["a"] })
     assert Game.Supervisor.queue_move(sup, user: "a", from: {0,0}, to: {0,1}) == :ok
+    assert Game.Supervisor.queue_move(sup, user: "a", from: {1,1}, to: {0,1}) == :ok
 
     board_pid = Game.Supervisor.get_board_pid(sup)
     assert Game.BoardServer.get_board(board_pid)
       |> Board.at({0,1})
       |> Map.take([:owner, :population_count]) == %{owner: nil, population_count: 0}
 
-    Process.sleep(30)
+    tick_server = Game.Supervisor.get_tick_server_pid(sup)
+    Process.sleep(25)
+    refute Game.TickServer.ticking?(tick_server)
 
     %{board: board, turn: turn} = Game.BoardServer.get(board_pid)
 
     assert turn == 1
     assert board
+      |> Board.at({0,0})
+      |> Map.take([:owner, :population_count]) == %{owner: 0, population_count: 1} # ticked 1 then moved 3
+    assert board
       |> Board.at({0,1})
-      |> Map.take([:owner, :population_count]) == %{owner: 0, population_count: 2}
+      |> Map.take([:owner, :population_count]) == %{owner: 0, population_count: 3} # ticked 1 then moved 3
   end
 
   describe "player_has_access?/2" do

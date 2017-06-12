@@ -34,18 +34,20 @@ defmodule Generals.Game.BoardServerTest do
         |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, type: :general })
       {:ok, pid} = BoardServer.start_link(board)
 
-      next_state = BoardServer.tick(pid)
+      return = BoardServer.tick(pid)
       expected_next_board = Board.replace_cell(board, {0, 0}, %Board.Cell{ row: 0, column: 0, type: :general, population_count: 1 })
-      assert next_state == %{
+      assert return == %{
         turn: 1,
-        board: expected_next_board
+        board: expected_next_board,
+        changed_coords: [{0,0}]
       }
 
-      next_state = BoardServer.tick(pid)
+      return = BoardServer.tick(pid)
       expected_next_board = Board.replace_cell(board, {0, 0}, %Board.Cell{ row: 0, column: 0, type: :general, population_count: 2 })
-      assert next_state == %{
+      assert return == %{
         turn: 2,
-        board: expected_next_board
+        board: expected_next_board,
+        changed_coords: [{0,0}]
       }
     end
   end

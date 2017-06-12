@@ -88,7 +88,7 @@ defmodule Generals.BoardTest do
 
   describe "tick/2" do
     test "occupied towns and all generals are increased by 1 on each turn" do
-      board = Board.get_new(rows: 10, columns: 10)
+      %{board: board} = Board.get_new(rows: 10, columns: 10)
         |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, type: :town, owner: 1, population_count: 0 })
         |> Board.replace_cell({0, 1}, %Board.Cell{ row: 0, column: 1, type: :general, owner: 1, population_count: 5 })
         |> Board.replace_cell({0, 2}, %Board.Cell{ row: 0, column: 2, type: :town, population_count: 0 })
@@ -99,12 +99,22 @@ defmodule Generals.BoardTest do
       assert Board.at(board, {0,2}) |> Map.take([:population_count]) == %{population_count: 0}
       assert Board.at(board, {0,3}) |> Map.take([:population_count]) == %{population_count: 0}
 
-      board2 = Board.tick(board, 2)
+      %{board: board2} = Board.tick(board, 2)
 
       assert Board.at(board2, {0,0}) |> Map.take([:population_count]) == %{population_count: 2}
       assert Board.at(board2, {0,1}) |> Map.take([:population_count]) == %{population_count: 7}
       assert Board.at(board2, {0,2}) |> Map.take([:population_count]) == %{population_count: 0}
       assert Board.at(board, {0,3}) |> Map.take([:population_count]) == %{population_count: 0}
+    end
+
+    test "the ticked cells are returned" do
+      %{changed_coords: coords} = Board.get_new(rows: 10, columns: 10)
+        |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, type: :town, owner: 1, population_count: 0 })
+        |> Board.replace_cell({0, 1}, %Board.Cell{ row: 0, column: 1, type: :general, owner: 1, population_count: 5 })
+        |> Board.replace_cell({0, 2}, %Board.Cell{ row: 0, column: 2, type: :town, population_count: 0 })
+        |> Board.tick(1)
+
+      assert Enum.sort(coords) == [{0,0}, {0,1}]
     end
 
     test "occupied plains are increased by 1 every 25 turns" do
@@ -114,21 +124,21 @@ defmodule Generals.BoardTest do
 
       Enum.each([(1..24), (26..49)], fn(range) ->
         Enum.each(range, fn(i) ->
-          ticked_board = Board.tick(board, i)
+          %{board: ticked_board} = Board.tick(board, i)
           assert Board.at(ticked_board, {0,0}) |> Map.take([:population_count]) == %{population_count: 1}
           assert Board.at(ticked_board, {0,1}) |> Map.take([:population_count]) == %{population_count: 1}
         end)
       end)
 
       Enum.each([25,50,75], fn(i) ->
-        ticked_board = Board.tick(board, i)
+        %{board: ticked_board} = Board.tick(board, i)
         assert Board.at(ticked_board, {0,0}) |> Map.take([:population_count]) == %{population_count: 2}
         assert Board.at(ticked_board, {0,1}) |> Map.take([:population_count]) == %{population_count: 1}
       end)
     end
 
     test "plains with 0 population are not ticked" do
-      board = Board.get_new(rows: 10, columns: 10)
+      %{board: board} = Board.get_new(rows: 10, columns: 10)
         |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, type: :plains, owner: 1, population_count: 0 })
         |> Board.tick(25)
       assert Board.at(board, {0,0}) |> Map.take([:population_count]) == %{population_count: 0}
