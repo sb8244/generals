@@ -7,7 +7,7 @@ defmodule Generals.CommandQueue.Command do
   @invalid_move_error      "Cannot move to this space"
 
   def get_move_command(player: player, from: from = {_,_}, to: coords = {_,_}, board: board = %Board{}) do
-    case validate_move(board, from, coords, player) do
+    case validate_move(board, from, coords) do
       true -> %__MODULE__{from: from, to: coords, type: :move, player: player}
       {:error, _} = error -> error
     end
@@ -21,7 +21,7 @@ defmodule Generals.CommandQueue.Command do
     end
   end
 
-  defp validate_move(board = %{dimensions: dimensions}, from, to, player) do
+  defp validate_move(board = %{dimensions: dimensions}, from, to) do
     valid_movement = Board.Dimensions.valid_coords?(dimensions, to) &&
                      Board.Dimensions.valid_coords?(dimensions, from) &&
                      Board.Cell.moveable?(Board.at(board, to)) &&
