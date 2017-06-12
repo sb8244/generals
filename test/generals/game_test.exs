@@ -20,5 +20,10 @@ defmodule Generals.GameTest do
     test "{:error, why} is returned for an invalid game" do
       {:error, "This is not a game"} = Generals.Game.find_user_game(game_id: 1, user_id: "my-id")
     end
+
+    test "{:error, why} is returned for an inaccessible game" do
+      {:ok, id, _} = Generals.Game.create_game("my-id")
+      {:error, "This is not a game"} = Generals.Game.find_user_game(game_id: id, user_id: "denied")
+    end
   end
 end
