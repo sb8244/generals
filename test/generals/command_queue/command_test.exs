@@ -6,7 +6,6 @@ defmodule Generals.CommandQueue.CommandTest do
 
   describe "get_move_command/1" do
     @invalid {:error, "Cannot move to this space"}
-    @invalid_player {:error, "Cannot move from a space you don't hold"}
 
     setup do
       board = Generals.Board.get_new(rows: 3, columns: 3)
@@ -29,9 +28,14 @@ defmodule Generals.CommandQueue.CommandTest do
       }
     end
 
-    test "the moving player must own the space they are moving from", %{board: board} do
+    test "the moving player does not need to own the space they are moving from", %{board: board} do
       unowned_board = Board.replace_cell(board, {0,0}, %Board.Cell{ row: 0, column: 0, owner: nil })
-      assert Command.get_move_command(player: 1, from: {0,0}, to: {0, 1}, board: unowned_board) == @invalid_player
+      assert Command.get_move_command(player: 1, from: {0,0}, to: {0, 1}, board: unowned_board) == %Command{
+        player: 1,
+        from: {0,0},
+        to: {0,1},
+        type: :move
+      }
     end
 
     test "an invalid coord will be an error", %{ board: board } do

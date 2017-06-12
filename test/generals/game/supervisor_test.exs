@@ -61,7 +61,7 @@ defmodule Generals.Game.SupervisorTest do
     test "an invalid move is an error", context do
       board = Board.get_new(rows: 2, columns: 2)
       {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, user_ids: ["a"] })
-      assert Game.Supervisor.queue_move(sup, user: "a", from: {0,0}, to: {0,1}) == {:error, "Cannot move from a space you don't hold"}
+      assert Game.Supervisor.queue_move(sup, user: "a", from: {0,0}, to: {0,-1}) == {:error, "Cannot move to this space"}
     end
 
     test "an invalid user->player is an error", context do

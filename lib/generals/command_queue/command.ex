@@ -29,12 +29,7 @@ defmodule Generals.CommandQueue.Command do
 
     case valid_movement do
       false -> {:error, @invalid_move_error}
-      true ->
-        valid_ownership = Board.Cell.owned_by?(Board.at(board, from), player)
-        case valid_ownership do
-          false -> {:error, @invalid_ownership_error}
-          true -> true
-        end
+      true -> true
     end
   end
 
