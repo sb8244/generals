@@ -71,16 +71,23 @@ defmodule Generals.Game.Supervisor do
   def get_board_pid(sup_pid), do: find_child_type(sup_pid, Game.BoardServer)
   def get_command_queue_pid(sup_pid), do: find_child_type(sup_pid, Game.CommandQueueServer)
   def get_player_server_pid(sup_pid), do: find_child_type(sup_pid, Game.PlayerServer)
+  def get_tick_server_pid(sup_pid), do: find_child_type(sup_pid, Game.TickServer)
 
   defp tick(sup_pid) do
     board_pid = get_board_pid(sup_pid)
     queue_pid = get_command_queue_pid(sup_pid)
 
-    %{turn: turn} = Game.BoardServer.tick(board_pid)
+    %{turn: turn, changed_coords: coords} = Game.BoardServer.tick(board_pid)
     Game.CommandQueueServer.commands_for_turn(queue_pid, turn)
-      |> Enum.each(fn(command) ->
-        Game.BoardServer.execute_command(board_pid, command)
+      |> Enum.flat_map(fn(command) ->
+        case Game.BoardServer.execute_command(board_pid, command) do
+          {:ok, _} -> [command.from, command.to]
+          _ -> []
+        end
       end)
+      |> Enum.concat(coords)
+      |> Enum.uniq
+      |> IO.inspect
   end
 
   defp find_child_type(sup_pid, type) do

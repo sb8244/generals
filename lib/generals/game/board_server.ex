@@ -42,12 +42,13 @@ defmodule Generals.Game.BoardServer do
   end
 
   def handle_call(:tick, _from, %{board: board, turn: turn}) do
+    %{board: next_board, changed_coords: coords} = Generals.Board.tick(board, turn + 1)
     next_state = %{
       turn: turn + 1,
-      board: Generals.Board.tick(board, turn + 1)
+      board: next_board
     }
 
-    {:reply, next_state, next_state}
+    {:reply, Map.put(next_state, :changed_coords, coords), next_state}
   end
 
   def handle_call({:execute_command, command}, _from, %{board: board, turn: turn}) do
