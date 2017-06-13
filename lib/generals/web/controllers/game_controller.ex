@@ -14,11 +14,13 @@ defmodule Generals.Web.GameController do
   end
 
   def show(conn, %{"id" => id}) do
-    case Generals.Game.find_user_game(game_id: id, user_id: get_user_id(conn)) do
+    user_id = get_user_id(conn)
+    case Generals.Game.find_user_game(game_id: id, user_id: user_id) do
       {:ok, _} ->
         conn
           |> assign(:game_id, id)
-          |> assign(:game_auth_token, get_game_auth_token(game_id: id, user_id: get_user_id(conn)))
+          |> assign(:user_id, user_id)
+          |> assign(:game_auth_token, get_game_auth_token(game_id: id, user_id: user_id))
           |> render("show.html")
       {:error, why} -> text(conn, why)
     end

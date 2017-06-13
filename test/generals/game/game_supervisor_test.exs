@@ -6,7 +6,7 @@ defmodule Generals.Game.SupervisorTest do
 
   test "the board is initialized with a provided board", context do
     board = Board.get_new(rows: 1, columns: 1)
-    {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, user_ids: ["a"] })
+    {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context.test, board: board, user_ids: ["a"] })
     board_pid = Game.Supervisor.get_board_pid(sup)
     assert is_pid(board_pid)
     assert Game.BoardServer.get_board(board_pid) == board
@@ -16,7 +16,7 @@ defmodule Generals.Game.SupervisorTest do
     board = Board.get_new(rows: 1, columns: 1)
       |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, type: :general, owner: 1 })
 
-    {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, timeout: 10, user_ids: ["a"] })
+    {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context.test, board: board, timeout: 10, user_ids: ["a"] })
     board_pid = Game.Supervisor.get_board_pid(sup)
 
     assert Game.BoardServer.get_board(board_pid).cells == [[%Board.Cell{ column: 0, row: 0, owner: 1, population_count: 0, type: :general }]]
@@ -29,7 +29,7 @@ defmodule Generals.Game.SupervisorTest do
       |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 0, population_count: 3, type: :town })
       |> Board.replace_cell({1, 0}, %Board.Cell{ row: 1, column: 0, type: :town, owner: 0 })
 
-    {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, timeout: 20, user_ids: ["a"] })
+    {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context.test, board: board, timeout: 20, user_ids: ["a"] })
     assert Game.Supervisor.queue_move(sup, user: "a", from: {0,0}, to: {0,1}) == :ok
     assert Game.Supervisor.queue_move(sup, user: "a", from: {1,1}, to: {0,1}) == :ok
 
@@ -56,7 +56,7 @@ defmodule Generals.Game.SupervisorTest do
   describe "player_has_access?/2" do
     test "returns false when the player isn't in the game", context do
       board = Board.get_new(rows: 1, columns: 1)
-      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, user_ids: ["a", "b"] })
+      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context.test, board: board, user_ids: ["a", "b"] })
       assert Game.Supervisor.player_has_access?(sup, "a") == true
       assert Game.Supervisor.player_has_access?(sup, "b") == true
       assert Game.Supervisor.player_has_access?(sup, "c") == false
@@ -68,7 +68,7 @@ defmodule Generals.Game.SupervisorTest do
       board = Board.get_new(rows: 2, columns: 2)
         |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 0, population_count: 3 })
 
-      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, user_ids: ["a"] })
+      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context.test, board: board, user_ids: ["a"] })
       assert Game.Supervisor.queue_move(sup, user: "a", from: {0,0}, to: {0,1}) == :ok
 
       queue_pid = Game.Supervisor.get_command_queue_pid(sup)
@@ -77,13 +77,13 @@ defmodule Generals.Game.SupervisorTest do
 
     test "an invalid move is an error", context do
       board = Board.get_new(rows: 2, columns: 2)
-      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, user_ids: ["a"] })
+      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context.test, board: board, user_ids: ["a"] })
       assert Game.Supervisor.queue_move(sup, user: "a", from: {0,0}, to: {0,-1}) == {:error, "Cannot move to this space"}
     end
 
     test "an invalid user->player is an error", context do
       board = Board.get_new(rows: 2, columns: 2)
-      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, user_ids: ["a"] })
+      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context.test, board: board, user_ids: ["a"] })
       assert Game.Supervisor.queue_move(sup, user: "b", from: {0,0}, to: {0,1}) == {:error, "You are not in this game"}
     end
   end
@@ -91,13 +91,13 @@ defmodule Generals.Game.SupervisorTest do
   describe "clear_future_moves/2" do
     test "an invalid user->player is an error", context do
       board = Board.get_new(rows: 2, columns: 2)
-      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, user_ids: ["a"] })
+      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context.test, board: board, user_ids: ["a"] })
       assert Game.Supervisor.clear_future_moves(sup, user: "b") == {:error, "You are not in this game"}
     end
 
     test "the future command queue for a player is cleared out", context do
       board = Board.get_new(rows: 2, columns: 2)
-      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, user_ids: ["a", "b"] })
+      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context.test, board: board, user_ids: ["a", "b"] })
 
       player_server = Game.Supervisor.get_player_server_pid(sup)
       board_server = Game.Supervisor.get_board_pid(sup)
@@ -124,7 +124,7 @@ defmodule Generals.Game.SupervisorTest do
   describe "serialize_game/2" do
     test "the right keys are included", context do
       board = Board.get_new(rows: 2, columns: 2)
-      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, user_ids: ["a", "b"] })
+      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context.test, board: board, user_ids: ["a", "b"] })
       serialized = Game.Supervisor.serialize_game(sup, user: "a")
 
       assert Map.keys(serialized) == [:board, :players, :turn]

@@ -9,6 +9,12 @@ defmodule Generals.Game.PlayerServer do
     end)
   end
 
+  def get_players_mapping(pid) do
+    Agent.get(pid, fn(state) ->
+      state
+    end)
+  end
+
   def get_active_player_id(pid, user_id) do
     Agent.get(pid, fn(state) ->
       case Map.get(state, user_id) do

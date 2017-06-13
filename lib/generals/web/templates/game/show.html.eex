@@ -6,4 +6,5 @@
 
 <script>
   window.gameAuthToken = "<%= @game_auth_token %>";
+  window.userId = "<%= @user_id %>";
 </script>

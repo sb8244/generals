@@ -62,12 +62,12 @@ defmodule Generals.Game.Supervisor do
   end
 
   def start_link(opts = %{game_id: id}) do
-    Supervisor.start_link(__MODULE__, Map.drop(opts, [:game_id]), name: {:via, Registry, {get_registry_name(), id}})
+    Supervisor.start_link(__MODULE__, opts, name: {:via, Registry, {get_registry_name(), id}})
   end
 
-  def init(opts = %{board: board, user_ids: user_ids}) do
+  def init(opts = %{board: board, user_ids: user_ids, game_id: game_id}) do
     this = self()
-    tick_fn = fn() -> tick(this) end
+    tick_fn = fn() -> tick(this, game_id) end
 
     children = [
       worker(Game.BoardServer, [board], restart: :transient),
@@ -88,12 +88,15 @@ defmodule Generals.Game.Supervisor do
   def get_player_server_pid(sup_pid), do: find_child_type(sup_pid, Game.PlayerServer)
   def get_tick_server_pid(sup_pid), do: find_child_type(sup_pid, Game.TickServer)
 
-  defp tick(sup_pid) do
+  defp tick(sup_pid, game_id) do
     board_pid = get_board_pid(sup_pid)
     queue_pid = get_command_queue_pid(sup_pid)
+    players_pid = get_player_server_pid(sup_pid)
+
+    player_list = Game.PlayerServer.get_players_mapping(players_pid)
 
     %{turn: turn, changed_coords: coords} = Game.BoardServer.tick(board_pid)
-    Game.CommandQueueServer.commands_for_turn(queue_pid, turn)
+    changed_coords = Game.CommandQueueServer.commands_for_turn(queue_pid, turn)
       |> Enum.flat_map(fn(command) ->
         case Game.BoardServer.execute_command(board_pid, command) do
           {:ok, _} -> [command.from, command.to]
@@ -102,6 +105,18 @@ defmodule Generals.Game.Supervisor do
       end)
       |> Enum.concat(coords)
       |> Enum.uniq
+
+    board = Game.BoardServer.get_board(board_pid)
+    Enum.each(player_list, fn({user_id, %{player_id: player_id, left: left}}) ->
+      cond do
+        left -> nil
+        true ->
+          game_user_topic = "game:" <> to_string(game_id) <> ":" <> to_string(user_id)
+          Generals.Web.Endpoint.broadcast(game_user_topic, "tick", %{
+            changes: Generals.Board.BoardSerializer.for_changes(board, player: player_id, changed_coords: changed_coords)
+          })
+      end
+    end)
   end
 
   defp find_child_type(sup_pid, type) do

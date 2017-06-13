@@ -7,11 +7,11 @@ if (match && window.gameAuthToken) {
   const id = match[1];
   console.log(id);
   const socket = connectSocket(window.gameAuthToken);
-  joinGameChannel(socket, id, window.gameAuthToken);
+  joinGameChannel(socket, id, window.userId, window.gameAuthToken);
 }
 
-function joinGameChannel(socket, id, authToken) {
-  let channel = socket.channel(`game:${id}`, { token: authToken });
+function joinGameChannel(socket, id, userId, authToken) {
+  let channel = socket.channel(`game:${id}:${userId}`, { token: authToken });
   channel.join()
     .receive("ok", resp => {
       console.log("Joined successfully", resp, channel);
@@ -24,4 +24,7 @@ function joinGameChannel(socket, id, authToken) {
     });
   channel.onError(() => console.log("there was an error!"))
   channel.onClose(() => console.log("The channel closed"));
+  channel.on("tick", (payload) => {
+    console.log(payload);
+  });
 }

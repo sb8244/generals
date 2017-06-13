@@ -35,26 +35,40 @@ defmodule Generals.Board do
   end
 
   def special_type_coordinates(board) do
-    List.flatten(board.cells) |> Enum.filter(&(&1.type != :plains)) |> Enum.map(fn(cell) ->
-      {cell.row, cell.column}
-    end)
-  end
-
-  # TODO: Test
-  def get_player_owned_coords(board = %{dimensions: dimensions}, player) do
-    List.flatten(board.cells) |> Enum.filter(&(&1.owner == player)) |> Enum.flat_map(fn(%{row: row, column: column}) ->
-      [{row, column}, {row+1, column}, {row-1, column}, {row, column+1}, {row, column-1}]
-        |> Enum.filter(&(Dimensions.valid_coords?(dimensions, &1)))
-    end)
-      |> Enum.uniq
+    List.flatten(board.cells)
+      |> Enum.filter(&(&1.type != :plains))
+      |> Enum.map(&({&1.row, &1.column}))
   end
 
   # TODO: Test
   def get_player_visible_cells(board, player) do
-    valid_coords = get_player_owned_coords(board, player)
+    valid_coords = get_player_owned_coords(board, player) |> get_neighboring_coords(board)
     List.flatten(board.cells) |> Enum.filter(fn(%{row: row, column: column}) ->
       Enum.member?(valid_coords, {row, column})
     end)
+  end
+
+  def get_player_visible_cells(board, player, changed_coords) do
+    player_visible_coords = get_player_owned_coords(board, player) |> get_neighboring_coords(board)
+    visible_changed_coords = MapSet.intersection(Enum.into(changed_coords, MapSet.new), Enum.into(player_visible_coords, MapSet.new))
+
+    List.flatten(board.cells) |> Enum.filter(fn(%{row: row, column: column}) ->
+      Enum.member?(visible_changed_coords, {row, column})
+    end)
+  end
+
+  defp get_player_owned_coords(board, player) do
+    List.flatten(board.cells)
+      |> Enum.filter(&(&1.owner == player))
+      |> Enum.map(&({&1.row, &1.column}))
+  end
+
+  defp get_neighboring_coords(coords, %{dimensions: dimensions}) do
+    Enum.flat_map(coords, fn({row, column}) ->
+      [{row, column}, {row+1, column}, {row-1, column}, {row, column+1}, {row, column-1}]
+        |> Enum.filter(&(Dimensions.valid_coords?(dimensions, &1)))
+    end)
+      |> Enum.uniq
   end
 
   def replace_cell(board, {row, col}, cell) do
