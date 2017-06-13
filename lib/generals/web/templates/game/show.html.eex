@@ -1,3 +1,9 @@
 <div>
   Playing a game <%= @game_id %>
+
 </div>
+
+
+<script>
+  window.gameAuthToken = "<%= @game_auth_token %>";
+</script>

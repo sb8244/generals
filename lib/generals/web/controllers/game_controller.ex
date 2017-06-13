@@ -18,6 +18,7 @@ defmodule Generals.Web.GameController do
       {:ok, _} ->
         conn
           |> assign(:game_id, id)
+          |> assign(:game_auth_token, get_game_auth_token(game_id: id, user_id: get_user_id(conn)))
           |> render("show.html")
       {:error, why} -> text(conn, why)
     end
@@ -32,5 +33,9 @@ defmodule Generals.Web.GameController do
 
   defp get_user_id(conn) do
     get_session(conn, :user_id)
+  end
+
+  defp get_game_auth_token(game_id: game_id, user_id: user_id) do
+    Phoenix.Token.sign(Generals.Web.Endpoint, "game.permission", %{game_id: game_id, user_id: user_id})
   end
 end

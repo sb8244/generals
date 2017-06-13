@@ -3,24 +3,24 @@ import $ from 'jquery';
 import socket from './socket';
 
 const match = window.location.href.match(/\/games\/(.+)/)
-if (match) {
+if (match && window.gameAuthToken) {
   const id = match[1];
   console.log(id);
-  joinGameChannel(id);
+  joinGameChannel(id, window.gameAuthToken);
 }
 
-function joinGameChannel(id) {
-  let channel = socket.channel(`game:${id}`, {});
+function joinGameChannel(id, authToken) {
+  let channel = socket.channel(`game:${id}`, { token: authToken });
   channel.join()
     .receive("ok", resp => {
       console.log("Joined successfully", resp, channel);
-      channel.push("full_state");
+      channel.push("full_state", { token: authToken }).receive("ok", (payload) => {
+        console.log(payload);
+      });
     })
     .receive("error", resp => {
       console.log("Unable to join", resp);
     });
-
-  channel.on("full_state", (payload) => {
-    console.log(payload);
-  });
+  channel.onError(() => console.log("there was an error!"))
+  channel.onClose(() => console.log("The channel closed"));
 }
