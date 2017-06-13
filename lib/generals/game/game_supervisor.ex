@@ -102,7 +102,6 @@ defmodule Generals.Game.Supervisor do
       end)
       |> Enum.concat(coords)
       |> Enum.uniq
-      |> IO.inspect
   end
 
   defp find_child_type(sup_pid, type) do

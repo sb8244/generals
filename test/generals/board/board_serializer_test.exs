@@ -13,11 +13,11 @@ defmodule Generals.Board.BoardSerializerTest do
           rows: 3,
           columns: 3,
           cells: [
-            %{ coords: {0,0}, type: "general", owner: 0, population_count: 10 },
-            %{ coords: {0,1}, type: "town", owner: 0, population_count: 0 },
-            %{ coords: {0,2}, type: "plains", owner: nil, population_count: 0 },
-            %{ coords: {1,0}, type: "plains", owner: nil, population_count: 0 },
-            %{ coords: {1,1}, type: "plains", owner: nil, population_count: 0 },
+            %{ coords: %{row: 0, column: 0}, type: "general", owner: 0, population_count: 10 },
+            %{ coords: %{row: 0, column: 1}, type: "town", owner: 0, population_count: 0 },
+            %{ coords: %{row: 0, column: 2}, type: "plains", owner: nil, population_count: 0 },
+            %{ coords: %{row: 1, column: 0}, type: "plains", owner: nil, population_count: 0 },
+            %{ coords: %{row: 1, column: 1}, type: "plains", owner: nil, population_count: 0 },
           ]
         }
     end

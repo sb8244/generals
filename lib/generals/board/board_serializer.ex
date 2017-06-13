@@ -12,6 +12,6 @@ defmodule Generals.Board.BoardSerializer do
 
   defp serialize(cell = %Cell{row: row, column: column, type: type}) do
     base = Map.take(cell, [:population_count, :owner])
-    Map.merge(base, %{coords: {row, column}, type: to_string(type)})
+    Map.merge(base, %{coords: %{row: row, column: column}, type: to_string(type)})
   end
 end
