@@ -14,7 +14,7 @@ defmodule Generals.Board.Cell do
   end
 
   def make(:general, cell, owner: owner) do
-    Map.merge(cell, %{owner: owner, type: :general})
+    Map.merge(cell, %{owner: owner, type: :general, population_count: 10})
   end
 
   def make(:mountain, cell) do
