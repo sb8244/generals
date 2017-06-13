@@ -1,15 +1,16 @@
 import 'phoenix_html';
 import $ from 'jquery';
-import socket from './socket';
+import connectSocket from './socket';
 
 const match = window.location.href.match(/\/games\/(.+)/)
 if (match && window.gameAuthToken) {
   const id = match[1];
   console.log(id);
-  joinGameChannel(id, window.gameAuthToken);
+  const socket = connectSocket(window.gameAuthToken);
+  joinGameChannel(socket, id, window.gameAuthToken);
 }
 
-function joinGameChannel(id, authToken) {
+function joinGameChannel(socket, id, authToken) {
   let channel = socket.channel(`game:${id}`, { token: authToken });
   channel.join()
     .receive("ok", resp => {
