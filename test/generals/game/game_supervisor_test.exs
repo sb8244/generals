@@ -120,4 +120,16 @@ defmodule Generals.Game.SupervisorTest do
       assert Game.Supervisor.clear_future_moves(sup, user: "a") == :ok
     end
   end
+
+  describe "serialize_game/2" do
+    test "the right keys are included", context do
+      board = Board.get_new(rows: 2, columns: 2)
+      {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context, board: board, user_ids: ["a", "b"] })
+      serialized = Game.Supervisor.serialize_game(sup, user: "a")
+
+      assert Map.keys(serialized) == [:board, :players, :turn]
+      assert serialized[:turn] == 0
+      assert serialized[:players] == ["a", "b"]
+    end
+  end
 end

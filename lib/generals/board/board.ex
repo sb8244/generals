@@ -40,6 +40,23 @@ defmodule Generals.Board do
     end)
   end
 
+  # TODO: Test
+  def get_player_owned_coords(board = %{dimensions: dimensions}, player) do
+    List.flatten(board.cells) |> Enum.filter(&(&1.owner == player)) |> Enum.flat_map(fn(%{row: row, column: column}) ->
+      [{row, column}, {row+1, column}, {row-1, column}, {row, column+1}, {row, column-1}]
+        |> Enum.filter(&(Dimensions.valid_coords?(dimensions, &1)))
+    end)
+      |> Enum.uniq
+  end
+
+  # TODO: Test
+  def get_player_visible_cells(board, player) do
+    valid_coords = get_player_owned_coords(board, player)
+    List.flatten(board.cells) |> Enum.filter(fn(%{row: row, column: column}) ->
+      Enum.member?(valid_coords, {row, column})
+    end)
+  end
+
   def replace_cell(board, {row, col}, cell) do
     new_col = List.replace_at(Enum.at(board.cells, row), col, cell)
     new_cells = List.replace_at(board.cells, row, new_col)

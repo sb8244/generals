@@ -46,6 +46,21 @@ defmodule Generals.Game.Supervisor do
     end
   end
 
+  def serialize_game(sup_pid, user: user_id) do
+    case user_id_to_player_id(sup_pid, user_id) do
+      err = {:error, _} -> err
+      player ->
+        board_server = get_board_pid(sup_pid)
+        %{board: board, turn: turn} = Game.BoardServer.get(board_server)
+        player_server = get_player_server_pid(sup_pid)
+        %{
+          board: Generals.Board.BoardSerializer.for_player(board, player: player),
+          players: Game.PlayerServer.get_players(player_server),
+          turn: turn
+        }
+    end
+  end
+
   def start_link(opts = %{game_id: id}) do
     Supervisor.start_link(__MODULE__, Map.drop(opts, [:game_id]), name: {:via, Registry, {get_registry_name(), id}})
   end

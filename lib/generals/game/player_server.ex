@@ -3,6 +3,12 @@ defmodule Generals.Game.PlayerServer do
     Agent.start_link(fn -> map_user_ids_to_players(opts[:user_ids]) end)
   end
 
+  def get_players(pid) do
+    Agent.get(pid, fn(state) ->
+      Map.keys(state)
+    end)
+  end
+
   def get_active_player_id(pid, user_id) do
     Agent.get(pid, fn(state) ->
       case Map.get(state, user_id) do
