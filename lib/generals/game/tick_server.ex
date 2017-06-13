@@ -4,8 +4,8 @@ defmodule Generals.Game.TickServer do
   end
 
   def init(%{ticker: ticker_fn, timeout: timeout}) do
-    schedule_tick(timeout)
-    {:ok, %{ticker_fn: ticker_fn, timeout: 5000, ticking: false}}
+    schedule_tick(5000)
+    {:ok, %{ticker_fn: ticker_fn, timeout: timeout, ticking: false}}
   end
 
   def ticking?(pid) do
