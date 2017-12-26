@@ -115,7 +115,8 @@ defmodule Generals.Game.Supervisor do
         true ->
           game_user_topic = "game:" <> to_string(game_id) <> ":" <> to_string(user_id)
           Generals.Web.Endpoint.broadcast(game_user_topic, "tick", %{
-            changes: Generals.Board.BoardSerializer.for_changes(board, player: player_id, changed_coords: changed_coords)
+            changes: Generals.Board.BoardSerializer.for_changes(board, player: player_id, changed_coords: changed_coords),
+            turn: turn
           })
       end
     end)
