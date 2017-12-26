@@ -40,7 +40,6 @@ defmodule Generals.Board do
       |> Enum.map(&({&1.row, &1.column}))
   end
 
-  # TODO: Test
   def get_player_visible_cells(board, player) do
     valid_coords = get_player_owned_coords(board, player) |> get_neighboring_coords(board)
     List.flatten(board.cells) |> Enum.filter(fn(%{row: row, column: column}) ->

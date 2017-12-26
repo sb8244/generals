@@ -159,4 +159,76 @@ defmodule Generals.BoardTest do
       assert Board.at(new_board, {1,2}) |> Map.take([:owner, :type, :population_count]) == %{owner: 2, population_count: 2, type: :town}
     end
   end
+
+  describe "get_player_visible_cells/2" do
+    test "an invalid player id is an empty list" do
+      board = Board.get_new(rows: 3, columns: 3)
+        |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 1 })
+
+      assert Board.get_player_visible_cells(board, 2) == []
+    end
+
+    test "a 1x1 board returns all cells" do
+      board = Board.get_new(rows: 1, columns: 1)
+        |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 1 })
+
+      assert Board.get_player_visible_cells(board, 1) == [Board.at(board, {0, 0})]
+    end
+
+    test "neighboring cells are returned from a corner" do
+      board = Board.get_new(rows: 3, columns: 3)
+        |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 1 })
+
+      assert Board.get_player_visible_cells(board, 1)
+        |> Enum.map(&({&1.row, &1.column})) == [{0, 0}, {0, 1}, {1, 0}]
+    end
+
+    test "multiple cells return neighbors without dupes" do
+      board = Board.get_new(rows: 3, columns: 3)
+        |> Board.replace_cell({1, 0}, %Board.Cell{ row: 1, column: 0, owner: 1 })
+        |> Board.replace_cell({1, 1}, %Board.Cell{ row: 1, column: 1, owner: 1 })
+        |> Board.replace_cell({1, 2}, %Board.Cell{ row: 1, column: 2, owner: 1 })
+
+      assert Board.get_player_visible_cells(board, 1)
+        |> Enum.map(&({&1.row, &1.column})) == [
+          {0, 0}, {0, 1}, {0, 2},
+          {1, 0}, {1, 1}, {1, 2},
+          {2, 0}, {2, 1}, {2, 2}
+        ] # full board without dupes
+    end
+
+    test "neighboring cells are returned from a middle piece" do
+      board = Board.get_new(rows: 3, columns: 3)
+        |> Board.replace_cell({1, 1}, %Board.Cell{ row: 1, column: 1, owner: 1 })
+
+      assert Board.get_player_visible_cells(board, 1) |> Enum.map(&({&1.row, &1.column})) == [
+        {0, 1},
+        {1, 0},
+        {1, 1},
+        {1, 2},
+        {2, 1}
+      ]
+    end
+
+    test "enemy cells are returned" do
+      board = Board.get_new(rows: 3, columns: 3)
+        |> Board.replace_cell({1, 1}, %Board.Cell{ row: 1, column: 1, owner: 1 })
+        |> Board.replace_cell({1, 2}, %Board.Cell{ row: 1, column: 2, owner: 2 })
+
+      assert Board.get_player_visible_cells(board, 1) |> Enum.map(&({&1.row, &1.column})) == [
+        {0, 1},
+        {1, 0},
+        {1, 1}, # self
+        {1, 2}, # enemy
+        {2, 1}
+      ]
+
+      assert Board.get_player_visible_cells(board, 2) |> Enum.map(&({&1.row, &1.column})) == [
+        {0, 2},
+        {1, 1}, # enemy
+        {1, 2}, # self
+        {2, 2}
+      ]
+    end
+  end
 end
