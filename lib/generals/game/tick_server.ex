@@ -3,8 +3,11 @@ defmodule Generals.Game.TickServer do
     GenServer.start_link(__MODULE__, opts)
   end
 
-  def init(%{ticker: ticker_fn, timeout: timeout}) do
-    schedule_tick(5000)
+  def init(opts = %{ticker: ticker_fn, timeout: timeout}) do
+    immediate = Map.get(opts, :immediate_start, false)
+
+    if immediate, do: schedule_tick(timeout), else: schedule_tick(5000)
+
     {:ok, %{ticker_fn: ticker_fn, timeout: timeout, ticking: false}}
   end
 

@@ -16,7 +16,7 @@ defmodule Generals.Game.SupervisorTest do
     board = Board.get_new(rows: 1, columns: 1)
       |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, type: :general, owner: 1 })
 
-    {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context.test, board: board, timeout: 10, user_ids: ["a"] })
+    {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context.test, board: board, timeout: 10, immediate_start: true, user_ids: ["a"] })
     board_pid = Game.Supervisor.get_board_pid(sup)
 
     assert Game.BoardServer.get_board(board_pid).cells == [[%Board.Cell{ column: 0, row: 0, owner: 1, population_count: 0, type: :general }]]
@@ -29,7 +29,7 @@ defmodule Generals.Game.SupervisorTest do
       |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 0, population_count: 3, type: :town })
       |> Board.replace_cell({1, 0}, %Board.Cell{ row: 1, column: 0, type: :town, owner: 0 })
 
-    {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context.test, board: board, timeout: 20, user_ids: ["a"] })
+    {:ok, sup} = Game.Supervisor.start_link(%{ game_id: context.test, board: board, timeout: 20, immediate_start: true, user_ids: ["a"] })
     assert Game.Supervisor.queue_move(sup, user: "a", from: {0,0}, to: {0,1}) == :ok
     assert Game.Supervisor.queue_move(sup, user: "a", from: {1,1}, to: {0,1}) == :ok
 

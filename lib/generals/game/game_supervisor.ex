@@ -68,12 +68,14 @@ defmodule Generals.Game.Supervisor do
   def init(opts = %{board: board, user_ids: user_ids, game_id: game_id}) do
     this = self()
     tick_fn = fn() -> tick(this, game_id) end
+    timeout = Map.get(opts, :timeout, 1000)
+    immediate_start = Map.get(opts, :immediate_start, false)
 
     children = [
       worker(Game.BoardServer, [board], restart: :transient),
       worker(Game.CommandQueueServer, [], restart: :transient),
       worker(Game.PlayerServer, [[user_ids: user_ids]], restart: :transient),
-      worker(Game.TickServer, [%{ticker: tick_fn, timeout: Map.get(opts, :timeout, 1000)}], restart: :transient),
+      worker(Game.TickServer, [%{ticker: tick_fn, immediate_start: immediate_start, timeout: timeout}], restart: :transient),
     ]
 
     supervise(children, strategy: :one_for_one)
