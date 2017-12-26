@@ -10,6 +10,8 @@ defmodule Generals.Application do
       supervisor(Generals.GamesSupervisor, []),
     ]
 
+    if System.get_env("OBSERVE"), do: :observer.start
+
     opts = [strategy: :one_for_one, name: Generals.Supervisor]
     Supervisor.start_link(children, opts)
   end
