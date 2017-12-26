@@ -34,6 +34,11 @@ defmodule Generals.Board do
     board.cells |> Enum.at(row) |> Enum.at(col)
   end
 
+  def get_cells(board, type: type) do
+    List.flatten(board.cells)
+      |> Enum.filter(&(&1.type == type))
+  end
+
   def special_type_coordinates(board) do
     List.flatten(board.cells)
       |> Enum.filter(&(&1.type != :plains))

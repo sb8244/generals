@@ -21,5 +21,33 @@ defmodule Generals.Board.BoardSerializerTest do
           ]
         }
     end
+
+    test "mountains are included in the output" do
+      assert Board.get_new(rows: 3, columns: 3)
+        |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, type: :mountain })
+        |> Board.replace_cell({0, 1}, %Board.Cell{ row: 0, column: 1, type: :mountain })
+        |> BoardSerializer.for_player(player: 0) == %{
+          rows: 3,
+          columns: 3,
+          cells: [
+            %{ coords: %{row: 0, column: 0}, type: "mountain", owner: nil, population_count: 0 },
+            %{ coords: %{row: 0, column: 1}, type: "mountain", owner: nil, population_count: 0 },
+          ]
+        }
+    end
+
+    test "cells aren't duplicated" do
+      assert Board.get_new(rows: 1, columns: 2)
+        |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, type: :mountain })
+        |> Board.replace_cell({0, 1}, %Board.Cell{ row: 0, column: 1, owner: 0 })
+        |> BoardSerializer.for_player(player: 0) == %{
+          rows: 1,
+          columns: 2,
+          cells: [
+            %{ coords: %{row: 0, column: 0}, type: "mountain", owner: nil, population_count: 0 },
+            %{ coords: %{row: 0, column: 1}, type: "plains", owner: 0, population_count: 0 },
+          ]
+        }
+    end
   end
 end
