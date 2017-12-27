@@ -1,9 +1,10 @@
-import { h, cloneElement, Component } from 'preact';
+import { h, Component } from 'preact';
 
 import connectSocket from '../socket';
+import Board from './board';
 import GameState from '../game/state';
 
-export default class GameComm extends Component {
+export default class Game extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -17,7 +18,11 @@ export default class GameComm extends Component {
     const { children } = this.props;
     const { gameState } = this.state;
 
-    return cloneElement(children[0], { gameState });
+    return (
+      <div className="board__wrapper">
+        <Board gameState={gameState} />
+      </div>
+    )
   }
 
   setupSocket({ gameId, gameAuthToken, userId }) {
@@ -30,6 +35,7 @@ export default class GameComm extends Component {
           const { cells, rows, columns } = payload.board;
           const { turn } = payload;
 
+          console.log(payload);
           this.handleFullBoardEvent({ rows, columns, turn, cells });
         });
       })

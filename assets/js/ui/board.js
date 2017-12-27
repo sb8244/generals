@@ -32,8 +32,8 @@ function getColumn(gameState, row) {
   for (let c = 0; c < gameState.columns; c++) {
     const cell = gameState.cellAt(row, c);
     column.push((
-      <div className="board__column">
-        { cell ? cell.type.charAt(0) : 'X' }
+      <div className={`board__column board__column--fog`}>
+        { cell ? cell.type.charAt(0) : '' }
       </div>
     ));
   }

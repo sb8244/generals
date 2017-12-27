@@ -15,7 +15,7 @@ export default class GameState {
   }
 
   cellAt(r, c) {
-    return this.board[r * c + c];
+    return this.board[r * this.columns + c];
   }
 
   update(props) {
@@ -41,6 +41,6 @@ function updateCellsInBoard(state, { cells }) {
 
   cells.forEach((cell) => {
     const { row, column } = cell.coords;
-    board[row * column + column] = cell;
+    board[row * state.columns + column] = cell;
   });
 }

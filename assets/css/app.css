@@ -3,3 +3,36 @@
 .clickable {
   cursor: pointer;
 }
+
+.board__wrapper {
+  position: absolute;
+
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+
+  width: 2000px;
+  height: 1500px;
+
+  overflow: hidden;
+}
+
+.board__row {
+  display: flex;
+}
+
+.board__column {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  height: 50px;
+  width: 50px;
+}
+
+.board__column--fog {
+  background: #696969;
+  color: #fff;
+}
