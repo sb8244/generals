@@ -5,15 +5,12 @@
 }
 
 .board__wrapper {
-  position: absolute;
+  position: fixed;
 
   bottom: 0;
   left: 0;
   right: 0;
   top: 0;
-
-  width: 2000px;
-  height: 1500px;
 
   overflow: hidden;
 }

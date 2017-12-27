@@ -31,8 +31,14 @@ function getColumn(gameState, row) {
 
   for (let c = 0; c < gameState.columns; c++) {
     const cell = gameState.cellAt(row, c);
+    const classes = [];
+
+    if (!cell || !cell.visible) {
+      classes.push('board__column--fog');
+    }
+
     column.push((
-      <div className={`board__column board__column--fog`}>
+      <div className={`board__column ${classes.join(' ')}`}>
         { cell ? cell.type.charAt(0) : '' }
       </div>
     ));

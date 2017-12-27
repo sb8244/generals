@@ -32,11 +32,11 @@ export default class Game extends Component {
       .receive("ok", resp => {
         console.log("Joined successfully", resp, channel);
         channel.push("full_state", { token: gameAuthToken }).receive("ok", (payload) => {
-          const { cells, rows, columns } = payload.board;
+          const { cells, rows, columns, mountains } = payload.board;
           const { turn } = payload;
 
           console.log(payload);
-          this.handleFullBoardEvent({ rows, columns, turn, cells });
+          this.handleFullBoardEvent({ rows, columns, turn, cells, mountains });
         });
       })
       .receive("error", resp => {
@@ -49,13 +49,21 @@ export default class Game extends Component {
     });
   }
 
-  handleFullBoardEvent({ cells, columns, rows, turn }) {
-    const nextState = this.state.gameState.update({ cells, columns, rows, currentTurn: turn, initialized: true });
+  handleFullBoardEvent({ cells, columns, rows, turn, mountains }) {
+    let nextState = this.state.gameState.update({ cells: makeCellsVisible(cells), columns, rows, currentTurn: turn, initialized: true });
+    nextState = nextState.update({ cells: mountains });
     this.setState({ gameState: nextState });
   }
 
   handleTickEvent({ turn, changes }) {
-    let nextState = this.state.gameState.update({ currentTurn: turn, cells: changes });
+    let nextState = this.state.gameState.update({ currentTurn: turn, cells: makeCellsVisible(changes) });
     this.setState({ gameState: nextState });
   };
+}
+
+function makeCellsVisible(cells) {
+  return cells.map((cell) => {
+    cell.visible = true;
+    return cell;
+  });
 }

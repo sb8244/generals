@@ -6,7 +6,8 @@ defmodule Generals.Board.BoardSerializer do
     %{
       rows: board.dimensions.rows,
       columns: board.dimensions.columns,
-      cells: Enum.map(cells(board, player), &serialize/1)
+      cells: Enum.map(cells(board, player), &serialize/1),
+      mountains: Enum.map(Board.get_cells(board, type: :mountain), &serialize/1),
     }
   end
 
@@ -20,8 +21,6 @@ defmodule Generals.Board.BoardSerializer do
   end
 
   defp cells(board, player) do
-    all_cells = Board.get_player_visible_cells(board, player) ++
-                Board.get_cells(board, type: :mountain)
-    Enum.uniq(all_cells)
+    Board.get_player_visible_cells(board, player)
   end
 end
