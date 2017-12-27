@@ -1,6 +1,7 @@
 import 'phoenix_html';
 import $ from 'jquery';
 import connectSocket from './socket';
+import {} from './ui';
 
 const match = window.location.href.match(/\/games\/(.+)/)
 if (match && window.gameAuthToken) {
