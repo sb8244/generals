@@ -1,6 +1,6 @@
 import { h, render } from 'preact';
 
-import Game from './ui/game';
+import Game from './ui/Game';
 
 const boardContainer = document.getElementById('board-container');
 

@@ -1,9 +1,9 @@
 import { h } from 'preact';
 
-const Board = ({ gameState }) => {
+const Board = ({ gameState, position }) => {
   if (gameState.rows && gameState.columns) {
     return (
-      <div className="board">
+      <div className="board" style={position}>
         { getRows(gameState) }
       </div>
     );
@@ -35,16 +35,24 @@ function getColumn(gameState, row) {
 
     if (!cell || !cell.visible) {
       classes.push('board__column--fog');
+    } else {
+      classes.push('board__column--visible');
     }
 
     column.push((
-      <div className={`board__column ${classes.join(' ')}`}>
+      <div className={`board__column ${classes.join(' ')}`} onClick={cellClick(cell)}>
         { cell ? cell.type.charAt(0) : '' }
       </div>
     ));
   }
 
   return column;
+}
+
+function cellClick(cell) {
+  return (evt) => {
+    console.log('click', cell);
+  };
 }
 
 export default Board;

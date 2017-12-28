@@ -4,15 +4,28 @@
   cursor: pointer;
 }
 
-.board__wrapper {
+.board {
+  position: relative;
+}
+
+.board__wrapper,
+.game-scroll {
   position: fixed;
 
   bottom: 0;
   left: 0;
   right: 0;
   top: 0;
+}
 
+.game-scroll {
+  z-index: 9999;
+}
+
+.board__wrapper {
   overflow: hidden;
+
+  background: #333;
 }
 
 .board__row {
@@ -32,4 +45,13 @@
 .board__column--fog {
   background: #696969;
   color: #fff;
+
+  border: 1px solid #696969;
+}
+
+.board__column--visible {
+  background: #fff;
+  color: #000;
+
+  border: 1px solid black;
 }

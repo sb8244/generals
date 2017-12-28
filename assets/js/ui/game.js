@@ -1,26 +1,43 @@
 import { h, Component } from 'preact';
 
 import connectSocket from '../socket';
-import Board from './board';
 import GameState from '../game/state';
+
+import Board from './Board';
+import GameScroll from './GameScroll';
 
 export default class Game extends Component {
   constructor(props) {
     super(props);
     this.state = {
       gameState: new GameState({}),
+      boardPosition: {
+        top: 0,
+        left: 0,
+      }
     };
 
     this.setupSocket(props);
   }
 
+  changeBoardPosition({ horizontal, vertical }) {
+    const { top, left } = this.state.boardPosition;
+    this.setState({
+      boardPosition: {
+        top: top + vertical,
+        left: left + horizontal,
+      },
+    });
+  }
+
   render() {
     const { children } = this.props;
-    const { gameState } = this.state;
+    const { gameState, boardPosition } = this.state;
 
     return (
       <div className="board__wrapper">
-        <Board gameState={gameState} />
+        <GameScroll changeBoardPosition={this.changeBoardPosition.bind(this)} />
+        <Board gameState={gameState} position={boardPosition} />
       </div>
     )
   }
