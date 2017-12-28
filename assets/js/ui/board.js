@@ -33,19 +33,20 @@ function getColumn(gameState, row, setSelectedCoords) {
     const cell = gameState.cellAt(row, c);
     const classes = [];
 
-    if (!cell || !cell.visible) {
+    if (!cell.visible) {
       classes.push('board__column--fog');
     } else {
       classes.push('board__column--visible');
     }
 
-    if (cell && coordsEqual(cell.coords, gameState.selectedCoords)) {
+    if (gameState.selectedCell && coordsEqual(cell.coords, gameState.selectedCell.coords)) {
       classes.push('board__column--selected');
     }
 
     column.push((
       <div className={`board__column ${classes.join(' ')}`} onClick={cellClick(gameState, cell, setSelectedCoords)}>
-        { cell ? cell.type.charAt(0) : '' }
+        <span>{ cell.type.charAt(0) }</span>
+        { cell && cell.population_count ? <span>{cell.population_count}</span> : '' }
       </div>
     ));
   }
@@ -55,10 +56,10 @@ function getColumn(gameState, row, setSelectedCoords) {
 
 function cellClick(gameState, cell, setSelectedCoords) {
   return (evt) => {
-    if (coordsEqual(cell.coords, gameState.selectedCoords)) {
+    if (gameState.selectedCell && coordsEqual(cell.coords, gameState.selectedCell.coords)) {
       setSelectedCoords(undefined);
     } else {
-      setSelectedCoords(cell.coords);
+      setSelectedCoords(cell);
     }
   };
 }

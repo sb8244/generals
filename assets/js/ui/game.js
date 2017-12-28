@@ -2,6 +2,7 @@ import { h, Component } from 'preact';
 
 import connectSocket from '../socket';
 import GameState from '../game/state';
+import Move from '../game/move';
 
 import Board from './Board';
 import GameScroll from './GameScroll';
@@ -20,6 +21,7 @@ export default class Game extends Component {
     this.setupSocket(props);
     this.changeBoardPosition = this.changeBoardPosition.bind(this);
     this.setSelectedCoords = this.setSelectedCoords.bind(this);
+    this.queueMove = this.queueMove.bind(this);
   }
 
   changeBoardPosition({ horizontal, vertical }) {
@@ -44,15 +46,36 @@ export default class Game extends Component {
     )
   }
 
-  setSelectedCoords(coords) {
+  queueMove(from, to) {
+    if (this.channel) {
+      this.channel.push("queue_move", { token: gameAuthToken, from, to }).receive("ok", (payload) => {
+        console.log(payload);
+      }).receive("error", (resp) => {
+        console.log("error", resp);
+      });
+    }
+  }
+
+  setSelectedCoords(cell) {
+    if (this.state.gameState.selectedCell) {
+      const move = new Move({
+        from: this.state.gameState.selectedCell,
+        to: cell,
+        queueMove: this.queueMove,
+      });
+      move.move();
+    }
+
     this.setState({
-      gameState: this.state.gameState.update({ selectedCoords: coords }),
+      gameState: this.state.gameState.update({ selectedCell: cell }),
     });
   }
 
   setupSocket({ gameId, gameAuthToken, userId }) {
     const socket = connectSocket(gameAuthToken);
     const channel = socket.channel(`game:${gameId}:${userId}`, { token: gameAuthToken });
+    this.channel = channel;
+
     channel.join()
       .receive("ok", resp => {
         console.log("Joined successfully", resp, channel);

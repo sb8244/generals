@@ -1,10 +1,12 @@
+import Cell, { NullCell } from './cell';
+
 export default class GameState {
-  constructor({ board, rows = 0, columns = 0, currentTurn = 0, initialized = false, selectedCoords }) {
+  constructor({ board, rows = 0, columns = 0, currentTurn = 0, initialized = false, selectedCell }) {
     this.rows = rows;
     this.columns = columns;
     this.currentTurn = currentTurn;
     this.initialized = initialized;
-    this.selectedCoords = selectedCoords;
+    this.selectedCell = selectedCell;
 
     if (board) {
       this.board = board;
@@ -16,7 +18,13 @@ export default class GameState {
   }
 
   cellAt(r, c) {
-    return this.board[r * this.columns + c];
+    const cell = this.board[r * this.columns + c];
+
+    if (cell) {
+      return cell;
+    } else {
+      return new NullCell({ row: r, column: c });
+    }
   }
 
   update(props) {
@@ -42,6 +50,6 @@ function updateCellsInBoard(state, { cells }) {
 
   cells.forEach((cell) => {
     const { row, column } = cell.coords;
-    board[row * state.columns + column] = cell;
+    board[row * state.columns + column] = new Cell(cell);
   });
 }

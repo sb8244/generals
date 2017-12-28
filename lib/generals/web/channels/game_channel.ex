@@ -15,14 +15,28 @@ defmodule Generals.Web.GameChannel do
       end
   end
 
-  def handle_in("full_state", _p, socket = %{topic: "game:" <> _}) do
-    game_id = socket.assigns.game_id
-    user_id = socket.assigns.user_id
-
+  def handle_in("full_state", _p, socket = %{topic: "game:" <> _, assigns: %{game_id: game_id, user_id: user_id}}) do
     case Generals.Game.find_user_game(game_id: game_id, user_id: user_id) do
       {:ok, game_pid} ->
         serialized = Generals.Game.Supervisor.serialize_game(game_pid, user: user_id)
         {:reply, {:ok, serialized}, socket}
+      {:error, _} ->
+        {:stop, :shutdown, {:error, %{}}, socket}
+    end
+  end
+
+  def handle_in("queue_move", %{"from" => from, "to" => to}, socket = %{topic: "game:" <> _, assigns: %{game_id: game_id, user_id: user_id}}) do
+    case Generals.Game.find_user_game(game_id: game_id, user_id: user_id) do
+      {:ok, game_pid} ->
+        from_coords = {from["row"], from["column"]}
+        to_coords = {to["row"], to["column"]}
+
+        case Generals.Game.Supervisor.queue_move(game_pid, user: user_id, from: from_coords, to: to_coords) do
+          :ok ->
+            {:reply, {:ok, %{}}, socket}
+          {:error, why} ->
+            {:reply, {:error, %{error: why}}, socket}
+        end
       {:error, _} ->
         {:stop, :shutdown, {:error, %{}}, socket}
     end
