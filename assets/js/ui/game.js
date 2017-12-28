@@ -14,10 +14,12 @@ export default class Game extends Component {
       boardPosition: {
         top: 0,
         left: 0,
-      }
+      },
     };
 
     this.setupSocket(props);
+    this.changeBoardPosition = this.changeBoardPosition.bind(this);
+    this.setSelectedCoords = this.setSelectedCoords.bind(this);
   }
 
   changeBoardPosition({ horizontal, vertical }) {
@@ -36,10 +38,16 @@ export default class Game extends Component {
 
     return (
       <div className="board__wrapper">
-        <GameScroll changeBoardPosition={this.changeBoardPosition.bind(this)} />
-        <Board gameState={gameState} position={boardPosition} />
+        <GameScroll changeBoardPosition={this.changeBoardPosition} />
+        <Board gameState={gameState} position={boardPosition} setSelectedCoords={this.setSelectedCoords} />
       </div>
     )
+  }
+
+  setSelectedCoords(coords) {
+    this.setState({
+      gameState: this.state.gameState.update({ selectedCoords: coords }),
+    });
   }
 
   setupSocket({ gameId, gameAuthToken, userId }) {

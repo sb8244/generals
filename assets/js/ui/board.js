@@ -1,10 +1,10 @@
 import { h } from 'preact';
 
-const Board = ({ gameState, position }) => {
+const Board = ({ gameState, position, setSelectedCoords }) => {
   if (gameState.rows && gameState.columns) {
     return (
       <div className="board" style={position}>
-        { getRows(gameState) }
+        { getRows(gameState, setSelectedCoords) }
       </div>
     );
   } else {
@@ -12,13 +12,13 @@ const Board = ({ gameState, position }) => {
   }
 };
 
-function getRows(gameState) {
+function getRows(gameState, setSelectedCoords) {
   const rows = [];
 
   for (let r = 0; r < gameState.rows; r++) {
     rows.push((
       <div className="board__row">
-        { getColumn(gameState, r) }
+        { getColumn(gameState, r, setSelectedCoords) }
       </div>
     ));
   }
@@ -26,7 +26,7 @@ function getRows(gameState) {
   return rows;
 }
 
-function getColumn(gameState, row) {
+function getColumn(gameState, row, setSelectedCoords) {
   const column = [];
 
   for (let c = 0; c < gameState.columns; c++) {
@@ -39,8 +39,12 @@ function getColumn(gameState, row) {
       classes.push('board__column--visible');
     }
 
+    if (cell && coordsEqual(cell.coords, gameState.selectedCoords)) {
+      classes.push('board__column--selected');
+    }
+
     column.push((
-      <div className={`board__column ${classes.join(' ')}`} onClick={cellClick(cell)}>
+      <div className={`board__column ${classes.join(' ')}`} onClick={cellClick(gameState, cell, setSelectedCoords)}>
         { cell ? cell.type.charAt(0) : '' }
       </div>
     ));
@@ -49,10 +53,18 @@ function getColumn(gameState, row) {
   return column;
 }
 
-function cellClick(cell) {
+function cellClick(gameState, cell, setSelectedCoords) {
   return (evt) => {
-    console.log('click', cell);
+    if (coordsEqual(cell.coords, gameState.selectedCoords)) {
+      setSelectedCoords(undefined);
+    } else {
+      setSelectedCoords(cell.coords);
+    }
   };
+}
+
+function coordsEqual(coords, coords2) {
+  return coords && coords2 && coords.row === coords2.row && coords.column === coords2.column;
 }
 
 export default Board;

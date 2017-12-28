@@ -1,9 +1,10 @@
 export default class GameState {
-  constructor({ board, rows = 0, columns = 0, currentTurn = 0, initialized = false }) {
+  constructor({ board, rows = 0, columns = 0, currentTurn = 0, initialized = false, selectedCoords }) {
     this.rows = rows;
     this.columns = columns;
     this.currentTurn = currentTurn;
     this.initialized = initialized;
+    this.selectedCoords = selectedCoords;
 
     if (board) {
       this.board = board;

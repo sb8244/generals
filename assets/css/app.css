@@ -55,3 +55,7 @@
 
   border: 1px solid black;
 }
+
+.board__column--selected {
+  border-color: white;
+}
