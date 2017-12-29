@@ -160,6 +160,23 @@ defmodule Generals.BoardTest do
     end
   end
 
+  describe "get_player_visible_neighbor_cells/3" do
+    test "an invalid player id is an empty list" do
+      board = Board.get_new(rows: 3, columns: 3)
+        |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 1 })
+
+      assert Board.get_player_visible_neighbor_cells(board, 2, []) == []
+    end
+
+    test "neighboring cells are returned without the source" do
+      board = Board.get_new(rows: 3, columns: 3)
+        |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 1 })
+
+      assert Board.get_player_visible_neighbor_cells(board, 1, [{0, 0}])
+        |> Enum.map(&({&1.row, &1.column})) == [{0, 1}, {1, 0}, {1, 1}]
+    end
+  end
+
   describe "get_player_visible_cells/2" do
     test "an invalid player id is an empty list" do
       board = Board.get_new(rows: 3, columns: 3)

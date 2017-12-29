@@ -11,8 +11,9 @@ defmodule Generals.Board.BoardSerializer do
     }
   end
 
+  # TODO: Test
   def for_changes(board, player: player, changed_coords: changed_coords) do
-    Enum.map(Board.get_player_visible_cells(board, player, changed_coords), &serialize/1)
+    Enum.map(changed_cells(board, player, changed_coords), &serialize/1)
   end
 
   defp serialize(cell = %Cell{row: row, column: column, type: type}) do
@@ -22,5 +23,10 @@ defmodule Generals.Board.BoardSerializer do
 
   defp cells(board, player) do
     Board.get_player_visible_cells(board, player)
+  end
+
+  defp changed_cells(board, player, changed_coords) do
+    Board.get_player_visible_cells(board, player, changed_coords) ++
+    Board.get_player_visible_neighbor_cells(board, player, changed_coords)
   end
 end

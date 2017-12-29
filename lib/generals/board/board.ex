@@ -61,6 +61,21 @@ defmodule Generals.Board do
     end)
   end
 
+  def get_player_visible_neighbor_cells(board, player, source_coords) do
+    selected_coords = get_player_owned_coords(board, player)
+      |> Enum.filter(fn(coords) ->
+        Enum.member?(source_coords, coords)
+      end)
+      |> get_neighboring_coords(board)
+      |> Enum.reject(fn(coords) ->
+        Enum.member?(source_coords, coords)
+      end)
+
+    List.flatten(board.cells) |> Enum.filter(fn(%{row: row, column: column}) ->
+      Enum.member?(selected_coords, {row, column})
+    end)
+  end
+
   defp get_player_owned_coords(board, player) do
     List.flatten(board.cells)
       |> Enum.filter(&(&1.owner == player))
