@@ -12,6 +12,7 @@ export default class GameScroll extends Component {
     this.state = {};
     this.lastDelta = EMPTY_DELTA_STATE;
   }
+
   componentDidMount() {
     this.base.addEventListener('mousedown', this.onMouseDown)
   }

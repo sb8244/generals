@@ -1,10 +1,10 @@
 import { h } from 'preact';
 
-const Board = ({ gameState, position, setSelectedCoords }) => {
+const Board = ({ gameState, position, setSelectedCell }) => {
   if (gameState.rows && gameState.columns) {
     return (
       <div className="board" style={position}>
-        { getRows(gameState, setSelectedCoords) }
+        { getRows(gameState, setSelectedCell) }
       </div>
     );
   } else {
@@ -12,13 +12,13 @@ const Board = ({ gameState, position, setSelectedCoords }) => {
   }
 };
 
-function getRows(gameState, setSelectedCoords) {
+function getRows(gameState, setSelectedCell) {
   const rows = [];
 
   for (let r = 0; r < gameState.rows; r++) {
     rows.push((
       <div className="board__row">
-        { getColumn(gameState, r, setSelectedCoords) }
+        { getColumn(gameState, r, setSelectedCell) }
       </div>
     ));
   }
@@ -26,7 +26,7 @@ function getRows(gameState, setSelectedCoords) {
   return rows;
 }
 
-function getColumn(gameState, row, setSelectedCoords) {
+function getColumn(gameState, row, setSelectedCell) {
   const column = [];
 
   for (let c = 0; c < gameState.columns; c++) {
@@ -44,7 +44,7 @@ function getColumn(gameState, row, setSelectedCoords) {
     }
 
     column.push((
-      <div className={`board__column ${classes.join(' ')}`} onClick={cellClick(gameState, cell, setSelectedCoords)}>
+      <div className={`board__column ${classes.join(' ')}`} onClick={cellClick(gameState, cell, setSelectedCell)}>
         <span>{ cell.displayChar() }</span>
         { cell && cell.population_count ? <span>{cell.population_count}</span> : '' }
       </div>
@@ -54,12 +54,12 @@ function getColumn(gameState, row, setSelectedCoords) {
   return column;
 }
 
-function cellClick(gameState, cell, setSelectedCoords) {
+function cellClick(gameState, cell, setSelectedCell) {
   return (evt) => {
     if (gameState.selectedCell && coordsEqual(cell.coords, gameState.selectedCell.coords)) {
-      setSelectedCoords(undefined);
+      setSelectedCell(undefined);
     } else {
-      setSelectedCoords(cell);
+      setSelectedCell(cell);
     }
   };
 }

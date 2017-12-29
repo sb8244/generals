@@ -6,6 +6,7 @@ import Move from '../game/move';
 
 import Board from './Board';
 import GameScroll from './GameScroll';
+import Hotkeys from './Hotkeys';
 
 export default class Game extends Component {
   constructor(props) {
@@ -20,7 +21,7 @@ export default class Game extends Component {
 
     this.setupSocket(props);
     this.changeBoardPosition = this.changeBoardPosition.bind(this);
-    this.setSelectedCoords = this.setSelectedCoords.bind(this);
+    this.setSelectedCell = this.setSelectedCell.bind(this);
     this.queueMove = this.queueMove.bind(this);
   }
 
@@ -41,7 +42,8 @@ export default class Game extends Component {
     return (
       <div className="board__wrapper">
         <GameScroll changeBoardPosition={this.changeBoardPosition} />
-        <Board gameState={gameState} position={boardPosition} setSelectedCoords={this.setSelectedCoords} />
+        <Hotkeys gameState={gameState} setSelectedCell={this.setSelectedCell} />
+        <Board gameState={gameState} position={boardPosition} setSelectedCell={this.setSelectedCell} />
       </div>
     )
   }
@@ -56,7 +58,7 @@ export default class Game extends Component {
     }
   }
 
-  setSelectedCoords(cell) {
+  setSelectedCell(cell) {
     if (!cell) {
       this.setState({
         gameState: this.state.gameState.update({ selectedCell: undefined }),
