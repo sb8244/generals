@@ -59,7 +59,7 @@ export default class GameScroll extends Component {
     if (verticalDelta < 10 && horizontalDelta < 10) {
       const zIndex = this.base.style.zIndex;
       this.base.style.zIndex = 0;
-      document.elementFromPoint(x, y).dispatchEvent(new Event('click'));
+      document.elementFromPoint(x, y).dispatchEvent(new Event('click', { bubbles: true, cancelable: true }));
       this.base.style.zIndex = zIndex;
     }
 
