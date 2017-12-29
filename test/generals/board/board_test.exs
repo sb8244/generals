@@ -180,7 +180,7 @@ defmodule Generals.BoardTest do
         |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 1 })
 
       assert Board.get_player_visible_cells(board, 1)
-        |> Enum.map(&({&1.row, &1.column})) == [{0, 0}, {0, 1}, {1, 0}]
+        |> Enum.map(&({&1.row, &1.column})) == [{0, 0}, {0, 1}, {1, 0}, {1, 1}]
     end
 
     test "multiple cells return neighbors without dupes" do
@@ -197,16 +197,20 @@ defmodule Generals.BoardTest do
         ] # full board without dupes
     end
 
-    test "neighboring cells are returned from a middle piece" do
+    test "neighboring cells are returned from a middle piece (1 owned + 8 neighbors)" do
       board = Board.get_new(rows: 3, columns: 3)
         |> Board.replace_cell({1, 1}, %Board.Cell{ row: 1, column: 1, owner: 1 })
 
       assert Board.get_player_visible_cells(board, 1) |> Enum.map(&({&1.row, &1.column})) == [
+        {0, 0},
         {0, 1},
+        {0, 2},
         {1, 0},
         {1, 1},
         {1, 2},
-        {2, 1}
+        {2, 0},
+        {2, 1},
+        {2, 2},
       ]
     end
 
@@ -216,17 +220,23 @@ defmodule Generals.BoardTest do
         |> Board.replace_cell({1, 2}, %Board.Cell{ row: 1, column: 2, owner: 2 })
 
       assert Board.get_player_visible_cells(board, 1) |> Enum.map(&({&1.row, &1.column})) == [
+        {0, 0},
         {0, 1},
+        {0, 2},
         {1, 0},
         {1, 1}, # self
         {1, 2}, # enemy
-        {2, 1}
+        {2, 0},
+        {2, 1},
+        {2, 2},
       ]
 
       assert Board.get_player_visible_cells(board, 2) |> Enum.map(&({&1.row, &1.column})) == [
+        {0, 1},
         {0, 2},
         {1, 1}, # enemy
         {1, 2}, # self
+        {2, 1},
         {2, 2}
       ]
     end

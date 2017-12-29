@@ -69,7 +69,10 @@ defmodule Generals.Board do
 
   defp get_neighboring_coords(coords, %{dimensions: dimensions}) do
     Enum.flat_map(coords, fn({row, column}) ->
-      [{row, column}, {row+1, column}, {row-1, column}, {row, column+1}, {row, column-1}]
+      [
+        {row, column}, {row+1, column}, {row-1, column}, {row, column+1}, {row, column-1},
+        {row-1, column-1}, {row-1, column+1}, {row+1, column-1}, {row+1, column+1},
+      ]
         |> Enum.filter(&(Dimensions.valid_coords?(dimensions, &1)))
     end)
       |> Enum.uniq

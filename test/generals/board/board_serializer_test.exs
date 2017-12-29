@@ -18,6 +18,7 @@ defmodule Generals.Board.BoardSerializerTest do
             %{ coords: %{row: 0, column: 2}, type: "plains", owner: nil, population_count: 0 },
             %{ coords: %{row: 1, column: 0}, type: "plains", owner: nil, population_count: 0 },
             %{ coords: %{row: 1, column: 1}, type: "plains", owner: nil, population_count: 0 },
+            %{ coords: %{row: 1, column: 2}, type: "plains", owner: nil, population_count: 0 },
           ],
           mountains: [],
         }
