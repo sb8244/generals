@@ -23,6 +23,7 @@ export default class Game extends Component {
     this.changeBoardPosition = this.changeBoardPosition.bind(this);
     this.setSelectedCell = this.setSelectedCell.bind(this);
     this.queueMove = this.queueMove.bind(this);
+    this.clearMoveQueue = this.clearMoveQueue.bind(this);
   }
 
   changeBoardPosition({ horizontal, vertical }) {
@@ -42,7 +43,7 @@ export default class Game extends Component {
     return (
       <div className="board__wrapper">
         <GameScroll changeBoardPosition={this.changeBoardPosition} />
-        <Hotkeys gameState={gameState} setSelectedCell={this.setSelectedCell} />
+        <Hotkeys gameState={gameState} setSelectedCell={this.setSelectedCell} clearMoveQueue={this.clearMoveQueue} />
         <Board gameState={gameState} position={boardPosition} setSelectedCell={this.setSelectedCell} />
       </div>
     )
@@ -51,6 +52,16 @@ export default class Game extends Component {
   queueMove(from, to) {
     if (this.channel) {
       this.channel.push("queue_move", { token: gameAuthToken, from, to }).receive("ok", (payload) => {
+        console.log(payload);
+      }).receive("error", (resp) => {
+        console.log("error", resp);
+      });
+    }
+  }
+
+  clearMoveQueue() {
+    if (this.channel) {
+      this.channel.push("queue_clear", { token: gameAuthToken }).receive("ok", (payload) => {
         console.log(payload);
       }).receive("error", (resp) => {
         console.log("error", resp);

@@ -1,11 +1,18 @@
 import { Component } from 'preact';
 
 const KEYCODE_MOVE_HANDLERS = {
-  37: [0, -1],
-  38: [-1, 0],
-  39: [0, 1],
-  40: [1, 0],
+  37: [0, -1], // left
+  38: [-1, 0], // up
+  39: [0, 1], // right
+  40: [1, 0], // down
 };
+
+const KEYCODE_HANDLERS = {
+  27: (actions) => { // esc
+    actions.clearMoveQueue();
+    actions.setSelectedCell(undefined);
+  },
+}
 
 export default class Hotkeys extends Component {
   constructor() {
@@ -34,6 +41,8 @@ export default class Hotkeys extends Component {
         const newCell = this.props.gameState.cellAt(newCoords.row, newCoords.column);
         this.props.setSelectedCell(newCell);
       }
+    } else if (KEYCODE_HANDLERS[evt.keyCode]) {
+      KEYCODE_HANDLERS[evt.keyCode](this.props);
     }
   }
 }

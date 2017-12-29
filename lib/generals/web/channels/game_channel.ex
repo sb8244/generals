@@ -33,7 +33,21 @@ defmodule Generals.Web.GameChannel do
 
         case Generals.Game.Supervisor.queue_move(game_pid, user: user_id, from: from_coords, to: to_coords) do
           :ok ->
-            {:reply, {:ok, %{}}, socket}
+            {:reply, {:ok, %{action: "queue_move"}}, socket}
+          {:error, why} ->
+            {:reply, {:error, %{error: why}}, socket}
+        end
+      {:error, _} ->
+        {:stop, :shutdown, {:error, %{}}, socket}
+    end
+  end
+
+  def handle_in("queue_clear", _params, socket = %{topic: "game:" <> _, assigns: %{game_id: game_id, user_id: user_id}}) do
+    case Generals.Game.find_user_game(game_id: game_id, user_id: user_id) do
+      {:ok, game_pid} ->
+        case Generals.Game.Supervisor.clear_future_moves(game_pid, user: user_id) do
+          :ok ->
+            {:reply, {:ok, %{action: "queue_clear"}}, socket}
           {:error, why} ->
             {:reply, {:error, %{error: why}}, socket}
         end
