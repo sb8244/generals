@@ -156,5 +156,15 @@ defmodule Generals.CommandQueue.CommandTest do
       assert Board.at(new_board, {0,0}) == %Board.Cell{row: 0, column: 0, type: :town, owner: 1, population_count: 5}
       assert Board.at(new_board, {1,0}) == %Board.Cell{row: 1, column: 0, type: :plains, owner: 1, population_count: 6}
     end
+
+    test "moving onto a 0 pop plains with 1 pop plains will not change any state", %{board: board} do
+      command = Command.get_move_command(player: 1, from: {1,1}, to: {1,2}, board: board)
+      check_board = board
+        |> Board.replace_cell({1,1}, %Board.Cell{ row: 1, column: 1, type: :plains, owner: 1, population_count: 1 })
+        |> Board.replace_cell({1,2}, %Board.Cell{ row: 1, column: 2, type: :plains, owner: nil, population_count: 0 })
+      {:ok, new_board} = Command.execute(command, check_board)
+      assert Board.at(new_board, {1,1}) == %Board.Cell{row: 1, column: 1, type: :plains, owner: 1, population_count: 1}
+      assert Board.at(new_board, {1,2}) == %Board.Cell{row: 1, column: 2, type: :plains, owner: nil, population_count: 0}
+    end
   end
 end
