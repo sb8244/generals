@@ -22,8 +22,5 @@ defmodule Generals.Board.BoardSerializer do
 
   defp cells(board, player) do
     Board.get_player_visible_cells(board, player)
-      |> Enum.reject(fn(%Cell{type: type}) ->
-        type == :mountain
-      end)
   end
 end

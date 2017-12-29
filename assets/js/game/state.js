@@ -50,6 +50,12 @@ function updateCellsInBoard(state, { cells }) {
 
   cells.forEach((cell) => {
     const { row, column } = cell.coords;
-    board[row * state.columns + column] = new Cell(cell);
+    const index = row * state.columns + column;
+
+    if (cell.type === 'mountain' && board[index] && board[index].visible) {
+      cell.visible = true;
+    }
+
+    board[index] = new Cell(cell);
   });
 }

@@ -118,7 +118,7 @@ export default class Game extends Component {
 
   handleFullBoardEvent({ cells, columns, rows, turn, mountains }) {
     let nextState = this.state.gameState.update({ cells: makeCellsVisible(cells), columns, rows, currentTurn: turn, initialized: true });
-    nextState = nextState.update({ cells: mountains });
+    nextState = nextState.update({ cells: removeCellVisible(mountains) });
     this.setState({ gameState: nextState });
   }
 
@@ -131,6 +131,13 @@ export default class Game extends Component {
 function makeCellsVisible(cells) {
   return cells.map((cell) => {
     cell.visible = true;
+    return cell;
+  });
+}
+
+function removeCellVisible(cells) {
+  return cells.map((cell) => {
+    delete cell.visible;
     return cell;
   });
 }
