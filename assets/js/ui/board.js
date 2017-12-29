@@ -45,7 +45,7 @@ function getColumn(gameState, row, setSelectedCoords) {
 
     column.push((
       <div className={`board__column ${classes.join(' ')}`} onClick={cellClick(gameState, cell, setSelectedCoords)}>
-        <span>{ cell.type.charAt(0) }</span>
+        <span>{ cell.displayChar() }</span>
         { cell && cell.population_count ? <span>{cell.population_count}</span> : '' }
       </div>
     ));

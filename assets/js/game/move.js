@@ -6,11 +6,14 @@ export default class Move {
   }
 
   move() {
-    if (!this.from || !this.to) { return; }
+    if (!this.from || !this.to) { return false; }
 
     if (this.coordsNextToEachOther()) {
       this.queueMove(this.from.coords, this.to.coords);
+      return true;
     }
+
+    return false;
   }
 
   coordsNextToEachOther() {

@@ -57,18 +57,35 @@ export default class Game extends Component {
   }
 
   setSelectedCoords(cell) {
-    if (this.state.gameState.selectedCell) {
+    if (!cell) {
+      this.setState({
+        gameState: this.state.gameState.update({ selectedCell: undefined }),
+      });
+
+      return;
+    }
+
+    let moved = false;
+    const fromCell = this.state.gameState.selectedCell;
+
+    if (cell.isMovable() && fromCell) {
       const move = new Move({
-        from: this.state.gameState.selectedCell,
+        from: fromCell,
         to: cell,
         queueMove: this.queueMove,
       });
-      move.move();
+      moved = move.move();
     }
 
-    this.setState({
-      gameState: this.state.gameState.update({ selectedCell: cell }),
-    });
+    if (cell.clickable() || moved) {
+      this.setState({
+        gameState: this.state.gameState.update({ selectedCell: cell }),
+      });
+    } else {
+      this.setState({
+        gameState: this.state.gameState.update({ selectedCell: undefined }),
+      });
+    }
   }
 
   setupSocket({ gameId, gameAuthToken, userId }) {
