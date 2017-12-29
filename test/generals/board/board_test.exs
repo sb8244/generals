@@ -92,14 +92,14 @@ defmodule Generals.BoardTest do
         |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, type: :town, owner: 1, population_count: 0 })
         |> Board.replace_cell({0, 1}, %Board.Cell{ row: 0, column: 1, type: :general, owner: 1, population_count: 5 })
         |> Board.replace_cell({0, 2}, %Board.Cell{ row: 0, column: 2, type: :town, population_count: 0 })
-        |> Board.tick(1)
+        |> Board.tick(1 * Generals.Board.TurnRules.speedup_factor)
 
       assert Board.at(board, {0,0}) |> Map.take([:population_count]) == %{population_count: 1}
       assert Board.at(board, {0,1}) |> Map.take([:population_count]) == %{population_count: 6}
       assert Board.at(board, {0,2}) |> Map.take([:population_count]) == %{population_count: 0}
       assert Board.at(board, {0,3}) |> Map.take([:population_count]) == %{population_count: 0}
 
-      %{board: board2} = Board.tick(board, 2)
+      %{board: board2} = Board.tick(board, 2 * Generals.Board.TurnRules.speedup_factor)
 
       assert Board.at(board2, {0,0}) |> Map.take([:population_count]) == %{population_count: 2}
       assert Board.at(board2, {0,1}) |> Map.take([:population_count]) == %{population_count: 7}
@@ -112,26 +112,26 @@ defmodule Generals.BoardTest do
         |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, type: :town, owner: 1, population_count: 0 })
         |> Board.replace_cell({0, 1}, %Board.Cell{ row: 0, column: 1, type: :general, owner: 1, population_count: 5 })
         |> Board.replace_cell({0, 2}, %Board.Cell{ row: 0, column: 2, type: :town, population_count: 0 })
-        |> Board.tick(1)
+        |> Board.tick(1 * Generals.Board.TurnRules.speedup_factor)
 
       assert Enum.sort(coords) == [{0,0}, {0,1}]
     end
 
-    test "occupied plains are increased by 1 every 25 turns" do
+    test "occupied plains are increased by 1 every 25 * speedup_factor turns" do
       board = Board.get_new(rows: 10, columns: 10)
         |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, type: :plains, owner: 1, population_count: 1 })
         |> Board.replace_cell({0, 1}, %Board.Cell{ row: 0, column: 1, type: :plains, population_count: 1 })
 
-      Enum.each([(1..24), (26..49)], fn(range) ->
-        Enum.each(range, fn(i) ->
+      Enum.each((1..250), fn(i) ->
+        if rem(i, Generals.Board.TurnRules.speedup_factor) > 0 do
           %{board: ticked_board} = Board.tick(board, i)
           assert Board.at(ticked_board, {0,0}) |> Map.take([:population_count]) == %{population_count: 1}
           assert Board.at(ticked_board, {0,1}) |> Map.take([:population_count]) == %{population_count: 1}
-        end)
+        end
       end)
 
       Enum.each([25,50,75], fn(i) ->
-        %{board: ticked_board} = Board.tick(board, i)
+        %{board: ticked_board} = Board.tick(board, i * Generals.Board.TurnRules.speedup_factor)
         assert Board.at(ticked_board, {0,0}) |> Map.take([:population_count]) == %{population_count: 2}
         assert Board.at(ticked_board, {0,1}) |> Map.take([:population_count]) == %{population_count: 1}
       end)

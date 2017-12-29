@@ -35,19 +35,27 @@ defmodule Generals.Game.BoardServerTest do
       {:ok, pid} = BoardServer.start_link(board)
 
       return = BoardServer.tick(pid)
-      expected_next_board = Board.replace_cell(board, {0, 0}, %Board.Cell{ row: 0, column: 0, type: :general, population_count: 1 })
+      expected_next_board = Board.replace_cell(board, {0, 0}, %Board.Cell{ row: 0, column: 0, type: :general, population_count: 0 })
       assert return == %{
         turn: 1,
         board: expected_next_board,
-        changed_coords: [{0,0}]
+        changed_coords: []
       }
 
       return = BoardServer.tick(pid)
-      expected_next_board = Board.replace_cell(board, {0, 0}, %Board.Cell{ row: 0, column: 0, type: :general, population_count: 2 })
+      expected_next_board = Board.replace_cell(board, {0, 0}, %Board.Cell{ row: 0, column: 0, type: :general, population_count: 0 })
       assert return == %{
         turn: 2,
         board: expected_next_board,
-        changed_coords: [{0,0}]
+        changed_coords: []
+      }
+
+      return = BoardServer.tick(pid)
+      expected_next_board = Board.replace_cell(board, {0, 0}, %Board.Cell{ row: 0, column: 0, type: :general, population_count: 1 })
+      assert return == %{
+        turn: 3,
+        board: expected_next_board,
+        changed_coords: [{0, 0}]
       }
     end
   end

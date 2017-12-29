@@ -68,7 +68,7 @@ defmodule Generals.Game.Supervisor do
   def init(opts = %{board: board, user_ids: user_ids, game_id: game_id}) do
     this = self()
     tick_fn = fn() -> tick(this, game_id) end
-    timeout = Map.get(opts, :timeout, 1000)
+    timeout = Map.get(opts, :timeout, 1000) |> Integer.floor_div(Generals.Board.TurnRules.speedup_factor)
     immediate_start = Map.get(opts, :immediate_start, false)
 
     children = [

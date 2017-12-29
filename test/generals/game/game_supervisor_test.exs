@@ -1,5 +1,5 @@
 defmodule Generals.Game.SupervisorTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false # Not async due to coordination of processes
 
   alias Generals.Board
   alias Generals.Game
@@ -24,6 +24,11 @@ defmodule Generals.Game.SupervisorTest do
     assert Game.BoardServer.get_board(board_pid).cells == [[%Board.Cell{ column: 0, row: 0, owner: 1, population_count: 1, type: :general }]]
   end
 
+  @doc """
+    Turn 1: Move 2 from 0,0 -> 0,1: 0,0=1, 0,1=2
+    Turn 2: 0,0=1, 0,1=2
+    Turn 3: Tick towns, 0,0=2, 1,0=1 0,1=2 1,1=0
+  """
   test "commands for a turn are executed on a tick", context do
     board = Board.get_new(rows: 2, columns: 2)
       |> Board.replace_cell({0, 0}, %Board.Cell{ row: 0, column: 0, owner: 0, population_count: 3, type: :town })
@@ -44,13 +49,19 @@ defmodule Generals.Game.SupervisorTest do
 
     %{board: board, turn: turn} = Game.BoardServer.get(board_pid)
 
-    assert turn == 1
+    assert turn == 3
     assert board
       |> Board.at({0,0})
-      |> Map.take([:owner, :population_count]) == %{owner: 0, population_count: 1} # ticked 1 then moved 3
+      |> Map.take([:owner, :population_count]) == %{owner: 0, population_count: 2}
+    assert board
+      |> Board.at({1,0})
+      |> Map.take([:owner, :population_count]) == %{owner: 0, population_count: 1}
     assert board
       |> Board.at({0,1})
-      |> Map.take([:owner, :population_count]) == %{owner: 0, population_count: 3} # ticked 1 then moved 3
+      |> Map.take([:owner, :population_count]) == %{owner: 0, population_count: 2}
+    assert board
+      |> Board.at({1,1})
+      |> Map.take([:owner, :population_count]) == %{owner: nil, population_count: 0}
   end
 
   describe "player_has_access?/2" do

@@ -6,7 +6,7 @@ defmodule Generals.Game.TickServer do
   def init(opts = %{ticker: ticker_fn, timeout: timeout}) do
     immediate = Map.get(opts, :immediate_start, false)
 
-    if immediate, do: schedule_tick(timeout), else: schedule_tick(5000)
+    if immediate, do: schedule_tick(timeout), else: schedule_tick(2000)
 
     {:ok, %{ticker_fn: ticker_fn, timeout: timeout, ticking: false}}
   end

@@ -18,7 +18,8 @@ defmodule Generals.Board.BoardSerializerTest do
             %{ coords: %{row: 0, column: 2}, type: "plains", owner: nil, population_count: 0 },
             %{ coords: %{row: 1, column: 0}, type: "plains", owner: nil, population_count: 0 },
             %{ coords: %{row: 1, column: 1}, type: "plains", owner: nil, population_count: 0 },
-          ]
+          ],
+          mountains: [],
         }
     end
 
@@ -29,7 +30,8 @@ defmodule Generals.Board.BoardSerializerTest do
         |> BoardSerializer.for_player(player: 0) == %{
           rows: 3,
           columns: 3,
-          cells: [
+          cells: [],
+          mountains: [
             %{ coords: %{row: 0, column: 0}, type: "mountain", owner: nil, population_count: 0 },
             %{ coords: %{row: 0, column: 1}, type: "mountain", owner: nil, population_count: 0 },
           ]
@@ -44,8 +46,10 @@ defmodule Generals.Board.BoardSerializerTest do
           rows: 1,
           columns: 2,
           cells: [
-            %{ coords: %{row: 0, column: 0}, type: "mountain", owner: nil, population_count: 0 },
             %{ coords: %{row: 0, column: 1}, type: "plains", owner: 0, population_count: 0 },
+          ],
+          mountains: [
+            %{ coords: %{row: 0, column: 0}, type: "mountain", owner: nil, population_count: 0 },
           ]
         }
     end
