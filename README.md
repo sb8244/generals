@@ -15,9 +15,10 @@ No readme yet.
 - [ ] Multiple players join game
 - [ ] Army strength / land count info
 - [x] Clear future moves
+- [ ] Generals should be far enough away from each other (static or dynamic?)
 
 - Bugs
-- [ ] Fix issue with general being converted to town
+- [ ] Fix issue with own general being converted to town
 
 ## Installation
 
