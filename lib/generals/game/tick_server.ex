@@ -11,6 +11,9 @@ defmodule Generals.Game.TickServer do
     {:ok, %{ticker_fn: ticker_fn, timeout: timeout, ticking: false}}
   end
 
+  @doc """
+    Return if a tick is in progress or not
+  """
   def ticking?(pid) do
     GenServer.call(pid, :ticking?)
   end

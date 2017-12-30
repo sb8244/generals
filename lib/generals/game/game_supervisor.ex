@@ -4,6 +4,9 @@ defmodule Generals.Game.Supervisor do
   alias Generals.Game
   alias Generals.CommandQueue.Command
 
+  @doc """
+    Returns true | false if the player has access to this game
+  """
   def player_has_access?(sup_pid, user_id) do
     case user_id_to_player_id(sup_pid, user_id) do
       {:error, _} -> false
@@ -12,8 +15,8 @@ defmodule Generals.Game.Supervisor do
   end
 
   @doc """
-  Queues a move for the given user from {r,c} to {r,c}. The player must own the
-  from coordinates at the time of move creation, or an error will occur.
+    Queues a move for the given user from {r,c} to {r,c}. The player must own the
+    from coordinates at the time of move creation, or an error will occur.
   """
   def queue_move(sup_pid, user: user_id, from: from, to: to) do
     case user_id_to_player_id(sup_pid, user_id) do
@@ -32,8 +35,8 @@ defmodule Generals.Game.Supervisor do
   end
 
   @doc """
-  Clears out all moves from next turn and on for a given user in a game. The next turn
-  is used because the current turn moves have already executed.
+    Clears out all moves from next turn and on for a given user in a game. The next turn
+    is used because the current turn moves have already executed.
   """
   def clear_future_moves(sup_pid, user: user_id) do
     case user_id_to_player_id(sup_pid, user_id) do
@@ -46,6 +49,9 @@ defmodule Generals.Game.Supervisor do
     end
   end
 
+  @doc """
+    Serialize the full state of the game
+  """
   def serialize_game(sup_pid, user: user_id) do
     case user_id_to_player_id(sup_pid, user_id) do
       err = {:error, _} -> err
