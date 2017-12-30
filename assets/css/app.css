@@ -3,3 +3,59 @@
 .clickable {
   cursor: pointer;
 }
+
+.board {
+  position: relative;
+}
+
+.board__wrapper,
+.game-scroll {
+  position: fixed;
+
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+}
+
+.game-scroll {
+  z-index: 9999;
+}
+
+.board__wrapper {
+  overflow: hidden;
+
+  background: #333;
+}
+
+.board__row {
+  display: flex;
+}
+
+.board__column {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  height: 50px;
+  width: 50px;
+}
+
+.board__column--fog {
+  background: #696969;
+  color: #fff;
+
+  border: 1px solid #696969;
+}
+
+.board__column--visible {
+  background: #fff;
+  color: #000;
+
+  border: 1px solid black;
+}
+
+.board__column--selected {
+  border-color: white;
+}

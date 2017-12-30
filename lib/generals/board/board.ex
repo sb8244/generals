@@ -34,10 +34,63 @@ defmodule Generals.Board do
     board.cells |> Enum.at(row) |> Enum.at(col)
   end
 
+  def get_cells(board, type: type) do
+    List.flatten(board.cells)
+      |> Enum.filter(&(&1.type == type))
+  end
+
   def special_type_coordinates(board) do
-    List.flatten(board.cells) |> Enum.filter(&(&1.type != :plains)) |> Enum.map(fn(cell) ->
-      {cell.row, cell.column}
+    List.flatten(board.cells)
+      |> Enum.filter(&(&1.type != :plains))
+      |> Enum.map(&({&1.row, &1.column}))
+  end
+
+  def get_player_visible_cells(board, player) do
+    valid_coords = get_player_owned_coords(board, player) |> get_neighboring_coords(board)
+    List.flatten(board.cells) |> Enum.filter(fn(%{row: row, column: column}) ->
+      Enum.member?(valid_coords, {row, column})
     end)
+  end
+
+  def get_player_visible_cells(board, player, changed_coords) do
+    player_visible_coords = get_player_owned_coords(board, player) |> get_neighboring_coords(board)
+    visible_changed_coords = MapSet.intersection(Enum.into(changed_coords, MapSet.new), Enum.into(player_visible_coords, MapSet.new))
+
+    List.flatten(board.cells) |> Enum.filter(fn(%{row: row, column: column}) ->
+      Enum.member?(visible_changed_coords, {row, column})
+    end)
+  end
+
+  def get_player_visible_neighbor_cells(board, player, source_coords) do
+    selected_coords = get_player_owned_coords(board, player)
+      |> Enum.filter(fn(coords) ->
+        Enum.member?(source_coords, coords)
+      end)
+      |> get_neighboring_coords(board)
+      |> Enum.reject(fn(coords) ->
+        Enum.member?(source_coords, coords)
+      end)
+
+    List.flatten(board.cells) |> Enum.filter(fn(%{row: row, column: column}) ->
+      Enum.member?(selected_coords, {row, column})
+    end)
+  end
+
+  defp get_player_owned_coords(board, player) do
+    List.flatten(board.cells)
+      |> Enum.filter(&(&1.owner == player))
+      |> Enum.map(&({&1.row, &1.column}))
+  end
+
+  defp get_neighboring_coords(coords, %{dimensions: dimensions}) do
+    Enum.flat_map(coords, fn({row, column}) ->
+      [
+        {row, column}, {row+1, column}, {row-1, column}, {row, column+1}, {row, column-1},
+        {row-1, column-1}, {row-1, column+1}, {row+1, column-1}, {row+1, column+1},
+      ]
+        |> Enum.filter(&(Dimensions.valid_coords?(dimensions, &1)))
+    end)
+      |> Enum.uniq
   end
 
   def replace_cell(board, {row, col}, cell) do

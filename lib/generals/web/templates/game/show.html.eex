@@ -1,0 +1,9 @@
+<div>
+  <div id="board-container" />
+</div>
+
+<script>
+  window.gameAuthToken = "<%= @game_auth_token %>";
+  window.userId = "<%= @user_id %>";
+  window.gameId = "<%= @game_id %>";
+</script>

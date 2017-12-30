@@ -1,8 +1,8 @@
-defmodule Generals.Web.UserSocket do
+defmodule Generals.Web.GameSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", Generals.Web.RoomChannel
+  channel "game:*", Generals.Web.GameChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
@@ -19,8 +19,16 @@ defmodule Generals.Web.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(_params, socket) do
-    {:ok, socket}
+  def connect(%{"token" => token}, socket) do
+    Phoenix.Token.verify(Generals.Web.Endpoint, "game.permission", token)
+      |> case do
+        {:ok, %{user_id: user_id, game_id: game_id}} ->
+          socket = socket
+            |> assign(:user_id, user_id)
+            |> assign(:game_id, game_id)
+          {:ok, socket}
+        {:error, _} -> {:error, %{reason: "unauthorized"}}
+      end
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:
@@ -33,5 +41,5 @@ defmodule Generals.Web.UserSocket do
   #     Generals.Web.Endpoint.broadcast("user_socket:#{user.id}", "disconnect", %{})
   #
   # Returning `nil` makes this socket anonymous.
-  def id(_socket), do: nil
+  def id(socket), do: "game_socket:#{socket.assigns.game_id}:#{socket.assigns.user_id}"
 end

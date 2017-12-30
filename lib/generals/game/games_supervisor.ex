@@ -2,9 +2,9 @@ defmodule Generals.GamesSupervisor do
   use Supervisor
 
   @doc """
-  Creates a game for the given users and starts the game via the supervisor
-  {:ok, id, pid} is returned for a successful game
-  {:error, err} is returned for invalid games
+    Creates a game for the given users and starts the game via the supervisor
+
+    {:ok, id, pid} | {:error, err}
   """
   def create_game(opts \\ []) do
     options = Keyword.merge([name: __MODULE__, rows: 25, columns: 35], opts)
@@ -19,8 +19,8 @@ defmodule Generals.GamesSupervisor do
   end
 
   @doc """
-  Starts a game with a given ID. A game requires a `board` and `user_ids` to start.
-  If the given ID is already taken, an error will be returned
+    Starts a game with a given ID. A game requires a `board` and `user_ids` to start.
+    If the given ID is already taken, an error will be returned
   """
   def start_game(id, opts \\ []) do
     options = Keyword.merge([name: __MODULE__], opts)
@@ -32,8 +32,8 @@ defmodule Generals.GamesSupervisor do
   end
 
   @doc """
-  Retrieves the game with a given ID. When using this method, ensure that the user has access to the game
-  before returning it to them, or they can access games they shouldn't be able to.
+    Retrieves the game with a given ID. When using this method, ensure that the user has access to the game
+    before returning it to them, or they can access games they shouldn't be able to.
   """
   def get_game(id, opts \\ []) do
     options = Keyword.merge([name: __MODULE__], opts)

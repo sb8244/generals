@@ -3,6 +3,29 @@ defmodule Generals.Game.PlayerServer do
     Agent.start_link(fn -> map_user_ids_to_players(opts[:user_ids]) end)
   end
 
+  @doc """
+    Return the user ids in the game
+  """
+  def get_players(pid) do
+    Agent.get(pid, fn(state) ->
+      Map.keys(state)
+    end)
+  end
+
+  @doc """
+    Return the full mapping for the game
+
+    %{user_id => %{player_id:, left:}}
+  """
+  def get_players_mapping(pid) do
+    Agent.get(pid, fn(state) ->
+      state
+    end)
+  end
+
+  @doc """
+    Return the player id for a user, if the user has not left the game
+  """
   def get_active_player_id(pid, user_id) do
     Agent.get(pid, fn(state) ->
       case Map.get(state, user_id) do
@@ -13,6 +36,9 @@ defmodule Generals.Game.PlayerServer do
     end)
   end
 
+  @doc """
+    Mark a given user as having left a game
+  """
   def user_left(pid, user_id) do
     Agent.get_and_update(pid, fn(state) ->
       Map.get_and_update(state, user_id, fn(player_map) ->

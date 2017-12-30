@@ -9,10 +9,18 @@ defmodule Generals.Game.BoardServer do
     {:ok, %{board: board, turn: 0}}
   end
 
+  @doc """
+    Returns the state of the board server
+
+    %{board:, turn:}
+  """
   def get(pid) do
     GenServer.call(pid, :get)
   end
 
+  @doc """
+    Return the board from state
+  """
   def get_board(pid) do
     GenServer.call(pid, :get_board)
   end
@@ -21,10 +29,20 @@ defmodule Generals.Game.BoardServer do
     GenServer.call(pid, {:set_board, board})
   end
 
+  @doc """
+    Ticks the board forward 1 turn and maintains new state
+
+    %{board:, turn:, changed_coords: [{r, c}]}
+  """
   def tick(pid) do
     GenServer.call(pid, :tick)
   end
 
+  @doc """
+    Execute a Command on the board
+
+    {:ok, next_state} | {:invalid, next_state}
+  """
   def execute_command(pid, command = %Command{}) do
     GenServer.call(pid, {:execute_command, command})
   end

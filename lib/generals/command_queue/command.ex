@@ -64,7 +64,7 @@ defmodule Generals.CommandQueue.Command do
   defp compute_move(false, from_armies: from_armies, to_armies: to_armies)
     when from_armies > 0 and to_armies == from_armies,
     do: {:to, 0}
-  defp compute_move(false, from_armies: from_armies, to_armies: _)
+  defp compute_move(_, from_armies: from_armies, to_armies: _)
     when from_armies <= 0,
     do: {:noop}
 
