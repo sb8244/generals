@@ -37,8 +37,6 @@ defmodule Generals.Mixfile do
       {:cowboy, "~> 1.0"},
       # app
       {:uuid, "~> 1.1"},
-      # tests
-      {:mock, "~> 0.2.0", only: :test}
     ]
   end
 end
